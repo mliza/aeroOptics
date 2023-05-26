@@ -1,0 +1,9 @@
+1) shell_run.sh
+    Contains: 
+    tp_data_cutter.py (generates *.dat files from the extracted line data)
+    tp_to_pickle.py  (loads *.dat files created from tp_data_cutter.py and pickle's them)
+    tp_surface_to_pickle.py (converter surface files to pickle files) 
+
+2) convergence.py (loads history files and creates convergence plots, modify the python file)
+
+3) convergence.py (loads pickle surface and plots them;  modify the python file)
