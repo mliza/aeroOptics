@@ -32,15 +32,14 @@ from aerodynamics_class import *
 aero   = Aero()
 helper = Helper()
 
-def gas_density(density_dict):
+def gas_density(density_dict): # density_dict [kg/m^3]
     gas_amu_weight  = aero.air_molecular_mass()  # [g/mol]  
     avogadro_number = s_consts.N_A               # [particles/mol]  
-    # density_dict # [kg/m^3]
-    gas_density    = { }
+    gas_density     = { }
     for mol_name in gas_amu_weight: 
       gas_density[mol_name] = (density_dict[mol_name] * 10**3 * 
                                avogadro_number /
-                               gas_amu_weight[mol_name]) #[particles/m^3] 
+                               gas_amu_weight[mol_name]) # [particles/m^3] 
 
     # Sum all gas density values 
     '''
@@ -104,6 +103,10 @@ def optical_path_length(n_solution, distance):
 # Calculate polarizability (uses equation 4 from the paper)
 # https://link.springer.com/article/10.1134/BF03355985 
 def polarizability_constant(T_vib=2280):
+    # These should be inputs <?>  
+    rotational_qn  = [5, 15, 21];        #[ ] 
+    vibrational_qn = np.arange(0, 46, 1) #[ ]  
+
     # Physical constants  
     boltzmann_const      = s_consts.Boltzmann      #[J/K]  
     plancks_const        = s_consts.Planck         #[Js]  
@@ -129,9 +132,6 @@ def polarizability_constant(T_vib=2280):
                         #Molecular Simulations (Boyd), Table 2.4 
     vibrational_frequency = (boltzmann_const / plancks_const) * T_vib  #[Hz] 
 
-    # These should be inputs <?>  
-    rotational_qn  = [5, 15, 21];        #[ ] 
-    vibrational_qn = np.arange(0, 46, 1) #[ ]  
 
     # NOTE: Not sure what this is  
     # Y_{i,j}, i = vibrational QN, and j = rotational quantum number 
