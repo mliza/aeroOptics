@@ -33,7 +33,7 @@ aero   = Aero()
 helper = Helper()
 
 def gas_density(density_dict): # density_dict [kg/m^3]
-    gas_amu_weight  = aero.air_molecular_mass()  # [g/mol]  
+    gas_amu_weight  = aero.air_atomic_mass()  # [g/mol]  
     avogadro_number = s_consts.N_A               # [particles/mol]  
     gas_density     = { }
     for mol_name in gas_amu_weight: 
@@ -163,7 +163,7 @@ def atmospheric_index_of_refraction(altitude):
     return index_of_refraction 
 
 def Gladstone_Dale():
-    gas_amu_weight   = aero.air_molecular_mass()    # [g/mol]  
+    gas_amu_weight   = aero.air_atomic_mass()    # [g/mol]  
     avogadro_number  = s_consts.N_A                 # [particles/mol]  
     dielectric_const = s_consts.epsilon_0           # [F/m] 
     gd_consts        = constants_tables.karl_2003() # [m3/kg]
