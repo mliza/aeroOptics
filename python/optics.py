@@ -25,12 +25,8 @@ from ambiance import Atmosphere #package for atmosphere properties
 scripts_path   = os.environ.get('SCRIPTS')
 python_scripts = os.path.join(scripts_path, 'Python')
 sys.path.append(python_scripts) 
-from helper_class import *
-from aerodynamics_class import *  
-
-# Loading my classes 
-aero   = Aero()
-helper = Helper()
+import helper_functions as helper 
+import aerodynamic_functions as aero
 
 def gas_density(density_dict): # density_dict [kg/m^3]
     gas_amu_weight  = aero.air_atomic_mass()  # [g/mol]  
@@ -162,15 +158,30 @@ def atmospheric_index_of_refraction(altitude):
 
     return index_of_refraction 
 
+
 def Gladstone_Dale():
-    gas_amu_weight   = aero.air_atomic_mass()    # [g/mol]  
-    avogadro_number  = s_consts.N_A                 # [particles/mol]  
-    dielectric_const = s_consts.epsilon_0           # [F/m] 
+    gas_amu_weight   = aero.air_atomic_mass()       # [g/mol]
+    avogadro_number  = s_consts.N_A                 # [particles/mol]
+    dielectric_const = s_consts.epsilon_0           # [F/m]
     gd_consts        = constants_tables.karl_2003() # [m3/kg]
-    pol_consts       = constants_tables.polarizability() #[cm^3] 
-    #[m3/kg] * species[kg/m3] = [ ] 
+    pol_consts       = constants_tables.polarizability() #[cm^3]
+
+    # Convert CGS to SI 
+    pol_consts.update({n: 4 * np.pi * dielectric_const * 1E-6 * pol_consts[n]
+                       for n in pol_consts.keys()}) # [Fm^2]
+
+    # Calculate Gladstode date
+    gladstone_dale_dict = { }
+    for i in pol_consts:
+        strip_key = i.strip('+') # remove ion names
+        gladstone_dale_dict[i] = ( pol_consts[i] / (2 * dielectric_const) * 
+                        (avogadro_number / gas_amu_weight[strip_key]) * 1E3 ) #[m^3/kg]
+    return gladstone_dale_dict
 
 if __name__ == "__main__":
+    gd = Gladstone_Dale()
+    gd.update({n: np.round(gd[n] * 1E4, 3) for n in gd.keys()})  
+    IPython.embed(colors = 'Linux')
     altitude = np.linspace(0, 81E3, 1000)
     dielectric_const_0   = s_consts.epsilon_0 # [F/m] 
     index = atmospheric_index_of_refraction(altitude) 
