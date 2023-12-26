@@ -5,9 +5,9 @@
     File:   optics.py
     Def:
 
-    Author		Date		Revision
+    Author          Date        Revision
     ----------------------------------------------------
-    Martin E. Liza	03/26/2023	Initial version.
+    Martin E. Liza  03/26/2023  Initial version.
 '''
 import pickle
 import molmass
@@ -43,7 +43,6 @@ def gas_density(density_dict): # density_dict [kg/m^3]
     for gas_density_val in gas_density.values():
         gas_density['total'] += gas_density_val
     '''
-
     return gas_density #[particles/m^3] 
 
 def index_of_refraction(gas_density_dict):
@@ -141,10 +140,6 @@ def polarizability_constant(T_vib=2280):
     # Dunham approximation, DOI: 10.1103/PhysRev.41.721, Eq. 19 
     a_1 = -( alpha_e * omega_e / (6 *B_e**2) ) - 1 
     a_2 = (5/4) * a_1**2 - (2/3) * ( ) 
-    
-
-
-
 
 # http://walter.bislins.ch/bloge/index.asp?page=Deriving+Equations+for+Atmospheric+Refraction
 def atmospheric_index_of_refraction(altitude): 
@@ -159,7 +154,7 @@ def atmospheric_index_of_refraction(altitude):
     return index_of_refraction 
 
 
-def Gladstone_Dale():
+def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
     gas_amu_weight   = aero.air_atomic_mass()       # [g/mol]
     avogadro_number  = s_consts.N_A                 # [particles/mol]
     dielectric_const = s_consts.epsilon_0           # [F/m]
@@ -176,6 +171,12 @@ def Gladstone_Dale():
         strip_key = i.strip('+') # remove ion names
         gladstone_dale_dict[i] = ( pol_consts[i] / (2 * dielectric_const) * 
                         (avogadro_number / gas_amu_weight[strip_key]) * 1E3 ) #[m^3/kg]
+    if gas_density_dict:
+        gladstone_dale_dict['gladstone_dale'] = 0.0
+        for i in gas_density_dict:
+            gladstone_dale_dict['gladstone_dale'] += gladstone_dale_dict[i] * gas_density_dict[i]
+        gladstone_dale_dict['gladstone_dale'] /= sum(gas_density_dict.values()) 
+
     return gladstone_dale_dict
 
 if __name__ == "__main__":
