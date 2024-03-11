@@ -177,7 +177,7 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
             gladstone_dale_dict['gladstone_dale'] += gladstone_dale_dict[i] * gas_density_dict[i]
         gladstone_dale_dict['gladstone_dale'] /= sum(gas_density_dict.values()) 
 
-    return gladstone_dale_dict
+    return gladstone_dale_dict #[m3/kg]
 
 if __name__ == "__main__":
     gd = Gladstone_Dale()
