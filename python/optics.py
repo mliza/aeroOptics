@@ -18,7 +18,6 @@ import constants_tables
 import numpy as np
 import matplotlib.pyplot as plt 
 import scipy.constants as s_consts 
-import astropy.constants as a_consts
 from ambiance import Atmosphere #package for atmosphere properties 
 
 # My Packages 
@@ -153,6 +152,25 @@ def atmospheric_index_of_refraction(altitude):
 
     return index_of_refraction 
 
+def atmospheric_gladstoneDaleConstant(altitude): 
+    atmospheric_prop = Atmosphere(altitude)
+    temperature      = atmospheric_prop.temperature #[K]
+    density          = atmospheric_prop.density * 1E3 #[g/m^3]
+    num_density      = atmospheric_prop.number_density #[particles/m^3]
+    gladstone_const  = Gladstone_Dale() #[m3/kg]
+    atomic_mass      = aero.air_atomic_mass() #[g/mol] 
+    avogadro_number  = s_consts.N_A                 # [particles/mol]
+
+    atm_gladstone = ((0.77 * atomic_mass['N2'] * gladstone_const['N2'] + 
+                     0.23 * atomic_mass['O2'] * gladstone_const['O2']) *
+                     num_density / (density * avogadro_number))
+    return atm_gladstone
+
+
+
+
+
+
 
 def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
     gas_amu_weight   = aero.air_atomic_mass()       # [g/mol]
@@ -165,28 +183,38 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
     pol_consts.update({n: 4 * np.pi * dielectric_const * 1E-6 * pol_consts[n]
                        for n in pol_consts.keys()}) # [Fm^2]
 
-    # Calculate Gladstode date
-    gladstone_dale_dict = { }
+    # Calculate Gladstone dale
+    gladstone_dale_const = { }
     for i in pol_consts:
         strip_key = i.strip('+') # remove ion names
-        gladstone_dale_dict[i] = ( pol_consts[i] / (2 * dielectric_const) * 
+        gladstone_dale_const[i] = ( pol_consts[i] / (2 * dielectric_const) * 
                         (avogadro_number / gas_amu_weight[strip_key]) * 1E3 ) #[m^3/kg]
+
+
+    gladstone_dale_dict = { }
     if gas_density_dict:
         gladstone_dale_dict['gladstone_dale'] = 0.0
         for i in gas_density_dict:
-            gladstone_dale_dict['gladstone_dale'] += gladstone_dale_dict[i] * gas_density_dict[i]
+            gladstone_dale_dict[i] = ((gladstone_dale_const[i] *
+                                       gas_density_dict[i]) /
+                                      sum(gas_density_dict.values()))
+            gladstone_dale_dict['gladstone_dale'] += gladstone_dale_const[i] * gas_density_dict[i]
         gladstone_dale_dict['gladstone_dale'] /= sum(gas_density_dict.values()) 
 
-    return gladstone_dale_dict #[m3/kg]
+        return gladstone_dale_dict #[m3/kg]
+
+    else:
+        return gladstone_dale_const #[m^3/kg]
 
 if __name__ == "__main__":
     gd = Gladstone_Dale()
     gd.update({n: np.round(gd[n] * 1E4, 3) for n in gd.keys()})  
-    IPython.embed(colors = 'Linux')
     altitude = np.linspace(0, 81E3, 1000)
     dielectric_const_0   = s_consts.epsilon_0 # [F/m] 
     index = atmospheric_index_of_refraction(altitude) 
+    gd_s = atmospheric_gladstoneDaleConstant(altitude) 
 
+    IPython.embed(colors = 'Linux')
 
     # MAKING PLOTS #
     plt.plot(index, altitude*1E-3, linewidth=2.5) 

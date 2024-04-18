@@ -35,7 +35,6 @@ file_name = 'heatBathEyiCase12.csv'
 
 df_in = pd.read_csv(os.path.join(data_path, file_name))
 dict_in = df_in.to_dict()
-IPython.embed(colors ='Linux')
 df_in['time'] *= 1E6
 
 density_dict = { }
@@ -46,7 +45,27 @@ density_dict['O'] = df_in['rhoO'].to_numpy()
 density_dict['NO'] = df_in['rhoNO'].to_numpy()
 gd_const = optics.Gladstone_Dale(density_dict)
 index_refraction = optics.index_of_refraction(density_dict)
+gd = optics.Gladstone_Dale()
+gds = optics.atmospheric_gladstoneDaleConstant(0)
+gds_vec = gds * np.ones(np.shape(df_in['time'])) 
 
+IPython.embed(colors='Linux')
+
+'''
+plt.plot(df_in['time'], gd_const['N2']*1E4, linewidth=2, label='$N2$')
+plt.plot(df_in['time'], gd_const['O2']*1E4, linewidth=2, label='$O2$')
+plt.plot(df_in['time'], gd_const['O']*1E4, linewidth=2, label='$O$')
+plt.plot(df_in['time'], gd_const['NO']*1E4, linewidth=2, label='$NO$')
+plt.plot(df_in['time'], gd_const['N']*1E4, linewidth=2, label='$N$')
+plt.legend()
+plt.xlabel('Time $[\mu s]$')
+plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$')
+plt.savefig('gladstoneSpecificTime.png', format='png', bbox_inches='tight',
+            dpi=1200)
+plt.close() 
+'''
+
+'''
 plt.plot(df_in['time'], index_refraction['dilute'] - 1, linewidth=2)
 plt.xlabel('Time $[\mu s]$')
 plt.ylabel('Index of refraction - 1 $[\;]$')
@@ -55,11 +74,15 @@ plt.savefig('indexOfRefractionTime.eps', format='eps', bbox_inches='tight',
 plt.savefig('indexOfRefractionTime.png', format='png', bbox_inches='tight',
             dpi=1200)
 plt.close() 
+'''
 
 # Plot GD 
-plt.plot(df_in['time'], gd_const['gladstone_dale'] * 1E4, linewidth=2)
+plt.plot(df_in['time'], gd_const['gladstone_dale'] * 1E4, linewidth=2,
+label='flow')
+plt.plot(df_in['time'], gds_vec * 1E4, linewidth=2, label='atm')
 plt.xlabel('Time $[\mu s]$')
 plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$')
+plt.legend()
 plt.savefig('gladstonedaleConstTime.eps', format='eps', bbox_inches='tight',
             dpi=1200)
 plt.savefig('gladstonedaleConstTime.png', format='png', bbox_inches='tight',
@@ -104,6 +127,7 @@ plt.savefig('densityTime.png', format='png', bbox_inches='tight',
 plt.close() 
 '''
 
+'''
 plt.plot(df_in['time'], df_in['Tt'], linewidth=2, label='$T_{tr}$')
 plt.plot(df_in['time'], df_in['Tv'], linewidth=2, label='$T_{vr}$')
 plt.ylabel('Temperature $[K]$')
@@ -114,6 +138,7 @@ plt.savefig('temperatureTime.eps', format='eps', bbox_inches='tight',
 plt.savefig('temperatureTime.png', format='png', bbox_inches='tight',
             dpi=1200)
 plt.close() 
+'''
 
 
 
