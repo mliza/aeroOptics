@@ -3,13 +3,15 @@
 
 #include "rtweekend.h"
 #include "hittable.h"
+#include "material.h"
 
 class camera {
     public:
         /* Public Camera Parameters Here */
-        double aspect_ratio = 1.0; // Ratio of image width over height
-        int image_width = 100; // Rendered image width in pixel count
+        double aspect_ratio   = 1.0; // Ratio of image width over height
+        int image_width       = 100; // Rendered image width in pixel count
         int samples_per_pixel = 10;  // Count of random samples for each pixel
+        int max_depth         = 10;  // Maximum number of ray bounces into scene
 
         void render(const hittable& world) {
             initialize();
@@ -24,7 +26,7 @@ class camera {
                     color pixel_color(0,0,0);
                     for (int sample = 0; sample < samples_per_pixel; sample++) {
                         ray r = get_ray(i, j);
-                        pixel_color += ray_color(r, world);
+                        pixel_color += ray_color(r, max_depth, world);
                     }
                     write_color(std::cout, pixel_samples_scale * pixel_color);
                 }
@@ -92,18 +94,23 @@ class camera {
             return vec3(random_double() - 0.5, random_double() - 0.5, 0);
         }
             
-
-
-
-
-        color ray_color(const ray& ray, const hittable& world) const {
-            hit_record record;
-
-            if (world.hit(ray, interval(0, INF), record)) {
-                return 0.5 * (record.normal_vec + color(1.0, 1.0, 1.0));
+        color ray_color(const ray& r, int depth, const hittable& world) const {
+            // If we've exceeded the ray bounce limit, no more light is gathered
+            if (depth <= 0) {
+                return color(0, 0, 0);
             }
 
-            vec3 unit_direction = unit_vector(ray.get_direction());
+            hit_record record;
+            if (world.hit(r, interval(0.001, INF), record)) {
+                ray scattered;
+                color attenuation;
+                if (record.mat->scatter(r, record, attenuation, scattered)) {
+                    return attenuation * ray_color(scattered, depth-1, world);
+                }
+                return color(0, 0, 0);
+            }
+
+            vec3 unit_direction = unit_vector(r.get_direction());
             double a = 0.5 * (unit_direction.get_y() + 1.0);
             return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0); 
         }
