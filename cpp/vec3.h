@@ -16,7 +16,7 @@ class vec3 {
 
         // Function definitions (move to an .hpp file)
         vec3 operator-() const { return vec3(-e[0], -e[1], e[2]); }
-        double operator[] (int i) const { return e[i]; } 
+        double operator[] (int i) const { return e[i]; }
         double& operator[] (int i) { return e[i]; }
 
         // Function implementations (move to a .cpp file)
@@ -79,7 +79,7 @@ inline vec3 operator-(const vec3& u, const vec3& v) {
 }
 
 inline vec3 operator*(const vec3& u, const vec3& v) {
-    return vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]); 
+    return vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
 }
 
 inline vec3 operator*(double tmp, const vec3& v) {
@@ -123,7 +123,7 @@ inline vec3 random_unit_vector() {
     return unit_vector(random_in_unit_sphere());
 }
 
-inline vec3 random_on_hemisphere(const vec3& normal) { 
+inline vec3 random_on_hemisphere(const vec3& normal) {
     vec3 on_unit_sphere = random_unit_vector();
     // In the same hemisphere as the normal
     if (dot_product(on_unit_sphere, normal) > 0.0) {
@@ -134,9 +134,16 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
     }
 }
 
+ // OPTICS // Section 11.2 week 1
 inline vec3 reflect(const vec3& v, const vec3& n) {
     return v - 2 * dot_product(v, n) * n;
 }
 
+inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
+    double cos_theta = fmin(dot_product(-uv, n), 1.0);
+    vec3 r_out_perp = etai_over_etat * (uv + cos_theta * n);
+    vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.get_length_squared())) * n;
+    return r_out_perp + r_out_parallel;
+}
 
 #endif
