@@ -110,9 +110,9 @@ inline vec3 unit_vector(const vec3& v) {
     return v / v.get_length();
 }
 
-inline vec3 random_in_unit_sphere() {
+inline vec3 random_in_unit_disk() {
     while (true) {
-        vec3 p = vec3::random(-1, 1);
+        vec3 p = vec3(random_double(-1, 1), random_double(-1, 1), 0);
         if (p.get_length_squared() < 1) {
             return p;
         }
@@ -120,7 +120,7 @@ inline vec3 random_in_unit_sphere() {
 }
 
 inline vec3 random_unit_vector() {
-    return unit_vector(random_in_unit_sphere());
+    return unit_vector(random_in_unit_disk());
 }
 
 inline vec3 random_on_hemisphere(const vec3& normal) {
