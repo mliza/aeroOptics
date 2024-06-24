@@ -1,9 +1,10 @@
 #ifndef HITTABLE_LIST_H
 #define HITTABLE_LIST_H
 
-#include "hittable.h"
 
 #include <vector>
+#include "rtweekend.h"
+#include "hittable.h"
 
 class hittable_list : public hittable {
     public:
@@ -24,7 +25,7 @@ class hittable_list : public hittable {
             bool hit_anything = false;
             double closest_so_far = ray_t.max;
 
-            for (const std::shared_ptr<hittable> object : objects) {
+            for (const std::shared_ptr<hittable>& object : objects) {
                 if (object->hit(r, 
                     interval(ray_t.min, closest_so_far), tmp_rec)) { 
                     hit_anything = true;
@@ -34,7 +35,6 @@ class hittable_list : public hittable {
             }
 
             return hit_anything;
-
         }
 };
 

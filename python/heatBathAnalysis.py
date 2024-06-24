@@ -9,18 +9,12 @@
     ----------------------------------------------------
     Martin E. Liza  03/26/2023  Initial version.
 '''
-import pickle
-import molmass
 import os 
 import sys 
 import IPython
-import constants_tables 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
-import scipy.constants as s_consts 
-import astropy.constants as a_consts
-from ambiance import Atmosphere #package for atmosphere properties 
 
 # My Packages 
 scripts_path   = os.environ.get('SCRIPTS')
@@ -48,8 +42,8 @@ index_refraction = optics.index_of_refraction(density_dict)
 gd = optics.Gladstone_Dale()
 gds = optics.atmospheric_gladstoneDaleConstant(0)
 gds_vec = gds * np.ones(np.shape(df_in['time'])) 
+IPython.embed(colors = 'Linux')
 
-IPython.embed(colors='Linux')
 
 '''
 plt.plot(df_in['time'], gd_const['N2']*1E4, linewidth=2, label='$N2$')
@@ -63,18 +57,17 @@ plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$')
 plt.savefig('gladstoneSpecificTime.png', format='png', bbox_inches='tight',
             dpi=1200)
 plt.close() 
-'''
 
-'''
-plt.plot(df_in['time'], index_refraction['dilute'] - 1, linewidth=2)
+plt.plot(df_in['time'], index_refraction['dilute'], linewidth=2)
+#plt.axhline(y=1, linewidth=2, label='atm')
+#plt.legend()
 plt.xlabel('Time $[\mu s]$')
-plt.ylabel('Index of refraction - 1 $[\;]$')
+plt.ylabel('Index of refraction $[\;]$')
 plt.savefig('indexOfRefractionTime.eps', format='eps', bbox_inches='tight',
-            dpi=1200)
-plt.savefig('indexOfRefractionTime.png', format='png', bbox_inches='tight',
             dpi=1200)
 plt.close() 
 '''
+
 
 # Plot GD 
 plt.plot(df_in['time'], gd_const['gladstone_dale'] * 1E4, linewidth=2,
@@ -88,6 +81,7 @@ plt.savefig('gladstonedaleConstTime.eps', format='eps', bbox_inches='tight',
 plt.savefig('gladstonedaleConstTime.png', format='png', bbox_inches='tight',
             dpi=1200)
 plt.close() 
+
 
 '''
 # Plot Mass frac
@@ -139,6 +133,3 @@ plt.savefig('temperatureTime.png', format='png', bbox_inches='tight',
             dpi=1200)
 plt.close() 
 '''
-
-
-

@@ -15,7 +15,7 @@ class vec3 {
         double get_z() const { return e[2]; }
 
         // Function definitions (move to an .hpp file)
-        vec3 operator-() const { return vec3(-e[0], -e[1], e[2]); }
+        vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
         double operator[] (int i) const { return e[i]; }
         double& operator[] (int i) { return e[i]; }
 
@@ -38,7 +38,10 @@ class vec3 {
             return *this *= 1 / tmp;
         }
 
-        double get_length() const { return std::sqrt(get_length_squared()); }
+        double get_length() const {
+            return sqrt(get_length_squared());
+        }
+
         double get_length_squared() const {
             return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
         }
@@ -59,7 +62,7 @@ class vec3 {
         static vec3 random(double min, double max) {
             return vec3(random_double(min, max), random_double(min, max),
                     random_double(min, max));
-        } 
+        }
 };
 
 // point3 is just an alias for vec3, but useful for geometric clarity in the code
@@ -119,8 +122,17 @@ inline vec3 random_in_unit_disk() {
     }
 }
 
+inline vec3 random_in_unit_sphere() {
+    while (true) {
+        vec3 p = vec3::random(-1,1);
+        if (p.get_length_squared() < 1) {
+            return p;
+        }
+    }
+}
+
 inline vec3 random_unit_vector() {
-    return unit_vector(random_in_unit_disk());
+    return unit_vector(random_in_unit_sphere());
 }
 
 inline vec3 random_on_hemisphere(const vec3& normal) {

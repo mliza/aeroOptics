@@ -22,12 +22,10 @@ class camera {
         void render(const hittable& world) {
             initialize();
 
-            std::cout << "P3\n" << image_width << ' '
-                << image_height << "\n255\n";
+            std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
             for (int j = 0; j < image_height; j++) {
-                std::clog << "\rScanlines remaining: " << (image_height - j) <<
-                    ' ' << std::flush;
+                std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
                 for (int i = 0; i < image_width; i++) {
                     color pixel_color(0,0,0);
                     for (int sample = 0; sample < samples_per_pixel; sample++) {
@@ -111,6 +109,10 @@ class camera {
             // Returns the vector to a random point in the [-0.5, -0.5]
             // [+0.5, +0.5] unit square
             return vec3(random_double() - 0.5, random_double() - 0.5, 0);
+        }
+
+        vec3 sample_disk(double radius) const {
+            return radius * random_in_unit_disk();
         }
 
         point3 defocus_disk_sample() const {
