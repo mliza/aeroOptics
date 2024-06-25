@@ -13,23 +13,6 @@ int main() {
     hittable_list world;
     camera cam;
 
-    /*
-    double radius = cos(PI/4);
-
-    // Material Properties
-    auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    auto material_left = make_shared<lambertian>(color(0,1,0));
-    auto glass_left = make_shared<dielectric>(1.000097166937934);
-    auto glass_right = make_shared<dielectric>(1.0);
-
-
-    // World Properties
-    world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100, material_ground));
-    world.add(make_shared<sphere>(point3(-radius, 0.0, -1.0), radius, glass_left));
-    world.add(make_shared<sphere>(point3(radius, 0.0, -1.0), radius, glass_right));
-    world.add(make_shared<sphere>(point3(-radius, 0.0, -1.0), radius, material_left));
-    */
-
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
 
@@ -54,14 +37,17 @@ int main() {
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
                 } else {
                     // glass
-                    sphere_material = make_shared<dielectric>(1.5);
+                    //sphere_material = make_shared<dielectric>(1.5);
+                    sphere_material = make_shared<dielectric>(1.0);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
                 }
             }
         }
     }
 
-    auto material1 = make_shared<dielectric>(1.5);
+    //auto material1 = make_shared<dielectric>(1.000097166937934);
+    auto material1 = make_shared<dielectric>(1.0);
+    //auto material1 = make_shared<dielectric>(1.5);
     world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
 
     auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
@@ -71,11 +57,11 @@ int main() {
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
     
 
-
     // Camera Properties
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_width = 1200;
-    cam.samples_per_pixel = 10;
+    //cam.samples_per_pixel = 10;
+    cam.samples_per_pixel = 500;
     cam.max_depth = 20;
     cam.vfov = 20;
     cam.lookfrom = point3(13, 2, 3);
