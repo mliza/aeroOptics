@@ -106,29 +106,37 @@ def plot_fields(df_in, gd_const, gds_vec, density_dict,
     plt.close() 
 
 
+def get_density_dict(data_path : str, f_in : str) -> tuple[dict, object]:
+    """
+    Load csv files and returns a dictionary with all the densities
+    """
+    # Loads all csv
+    df_in = pd.read_csv(os.path.join(data_path, f_in), index_col=False) 
+
+    # Keys to ignore 
+    gas_type = f_in.split('_')[1]
+    ignore_keys = ("time", "Tt", "Tv", "e+")
+    if gas_type in ("O2", "N2"):
+        # (false_value, true_value) [condition]
+        tmp = (("N", "N2", "NO"),("O", "O2", "NO"))[gas_type == "N2"]
+        ignore_keys += tmp
+
+    density_dict = { }
+    # Create a density dictionary
+    for density_key in df_in.keys():
+        if density_key in ignore_keys:
+            continue
+        density_dict[density_key] = df_in[density_key].to_numpy()
+
+    return density_dict, df_in
+
 def main():
     data_path = '/Users/martin/Documents/Research/UoA/Projects/aeroOptics/data'
     data_out = 'outputFigures'
     files_in = os.listdir(data_path)
 
     for f_in in files_in: 
-        # Loads all csv
-        df_in = pd.read_csv(os.path.join(data_path, f_in), index_col=False) 
-
-        # Keys to ignore 
-        gas_type = f_in.split('_')[1]
-        ignore_keys = ("time", "Tt", "Tv", "e+")
-        if gas_type in ("O2", "N2"):
-            # (false_value, true_value) [condition]
-            tmp = (("N", "N2", "NO"),("O", "O2", "NO"))[gas_type == "N2"]
-            ignore_keys += tmp
-
-        density_dict = { }
-        # Create a density dictionary
-        for density_key in df_in.keys():
-            if density_key in ignore_keys:
-                continue
-            density_dict[density_key] = df_in[density_key].to_numpy()
+        density_dict, df_in = get_density_dict(data_path, f_in)
 
         # Gladstone-Dale constants and index of refraction using heath bath data
         gd_const = optics.Gladstone_Dale(density_dict)
