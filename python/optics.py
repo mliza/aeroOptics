@@ -31,10 +31,12 @@ def gas_density(density_dict): # density_dict [kg/m^3]
     gas_amu_weight  = aero.air_atomic_mass()  # [g/mol]  
     avogadro_number = s_consts.N_A               # [particles/mol]  
     gas_density     = { }
-    for mol_name in gas_amu_weight: 
-      gas_density[mol_name] = (density_dict[mol_name] * 10**3 * 
+    
+    for i in density_dict: 
+        strip_key = i.strip('+') # remove ion names
+        gas_density[i] = (density_dict[i] * 10**3 * 
                                avogadro_number /
-                               gas_amu_weight[mol_name]) # [particles/m^3] 
+                               gas_amu_weight[strip_key]) # [particles/m^3] 
 
     # Sum all gas density values 
     '''
@@ -48,7 +50,7 @@ def index_of_refraction(gas_density_dict):
     pol_consts         = constants_tables.polarizability() # [cm^3] 
     dielectric_const_0 = s_consts.epsilon_0                # [F/m] 
     density            = gas_density(gas_density_dict)     # [particles/m3]    
-    n_const              = { }                               # [ ] 
+    n_const            = { }                               # [ ] 
     # Convert cgs to SI
     alpha_si = lambda x : x * (4 * np.pi * dielectric_const_0) * 1E-6 #[F m2]
 
@@ -167,11 +169,6 @@ def atmospheric_gladstoneDaleConstant(altitude):
     return atm_gladstone
 
 
-
-
-
-
-
 def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
     gas_amu_weight   = aero.air_atomic_mass()       # [g/mol]
     avogadro_number  = s_consts.N_A                 # [particles/mol]
@@ -192,7 +189,9 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
 
 
     gladstone_dale_dict = { }
-    if gas_density_dict:
+    if not gas_density_dict:
+        return gladstone_dale_const #[m^3/kg]
+    else:
         gladstone_dale_dict['gladstone_dale'] = 0.0
         for i in gas_density_dict:
             gladstone_dale_dict[i] = ((gladstone_dale_const[i] *
@@ -202,9 +201,6 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
         gladstone_dale_dict['gladstone_dale'] /= sum(gas_density_dict.values()) 
 
         return gladstone_dale_dict #[m3/kg]
-
-    else:
-        return gladstone_dale_const #[m^3/kg]
 
 if __name__ == "__main__":
     gd = Gladstone_Dale()
