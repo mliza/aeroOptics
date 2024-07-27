@@ -109,28 +109,26 @@ def plot_fields(df_in, gd_const, gds_vec, density_dict,
 def main():
     data_path = '/Users/martin/Documents/Research/UoA/Projects/aeroOptics/data'
     data_out = 'outputFigures'
-
     files_in = os.listdir(data_path)
-    for i in files_in: 
-        df_in = pd.read_csv(os.path.join(data_path, i), index_col=False) 
 
-        # Create a density dictionary
+    for f_in in files_in: 
+        # Loads all csv
+        df_in = pd.read_csv(os.path.join(data_path, f_in), index_col=False) 
+
+        # Keys to ignore 
+        gas_type = f_in.split('_')[1]
+        ignore_keys = ("time", "Tt", "Tv", "e+")
+        if gas_type in ("O2", "N2"):
+            # (false_value, true_value) [condition]
+            tmp = (("N", "N2", "NO"),("O", "O2", "NO"))[gas_type == "N2"]
+            ignore_keys += tmp
+
         density_dict = { }
-        density_dict['N2'] = df_in['rhoN2'].to_numpy()
-        density_dict['N'] = df_in['rhoN'].to_numpy()
-        density_dict['O2'] = df_in['rhoO2'].to_numpy()
-        density_dict['O'] = df_in['rhoO'].to_numpy()
-        density_dict['NO'] = df_in['rhoNO'].to_numpy()
-
-        # Add ions to the dictionary 
-        # TODO: fix string and 
-        if i.split('_')[0] == '11Air':
-            density_dict['N2+'] = df_in['rhoN2+'].to_numpy()
-            density_dict['N+'] = df_in['rhoN+'].to_numpy()
-            density_dict['O2+'] = df_in['rhoO2+'].to_numpy()
-            density_dict['O+'] = df_in['rhoO+'].to_numpy()
-            density_dict['NO+'] = df_in['rhoNO+'].to_numpy()
-            #density_dict['e+'] = df_in['rhoE'].to_numpy()
+        # Create a density dictionary
+        for density_key in df_in.keys():
+            if density_key in ignore_keys:
+                continue
+            density_dict[density_key] = df_in[density_key].to_numpy()
 
         # Gladstone-Dale constants and index of refraction using heath bath data
         gd_const = optics.Gladstone_Dale(density_dict)
@@ -143,7 +141,8 @@ def main():
 
         # Plot data fields 
         plot_fields(df_in, gd_const, gds_vec,
-                    density_dict, index_refraction, data_out, i.split('.')[0],
+                    density_dict, index_refraction, data_out,
+                    f_in.split('.')[0],
                     pickle_flag=True)
 
 if __name__=="__main__":
