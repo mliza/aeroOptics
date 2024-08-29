@@ -149,24 +149,32 @@ def atmospheric_index_of_refraction(altitude):
     pressure         = atmospheric_prop.pressure * 0.01 #[mbar]
 
     # Calculate refractive coefficient 
-    refractivity = 79 * pressure / temperature 
+    refractivity = 79 * pressure / temperature
     index_of_refraction = refractivity * 1E-6 + 1
 
-    return index_of_refraction 
+    return index_of_refraction
 
-def atmospheric_gladstoneDaleConstant(altitude): 
+def atmospheric_gladstoneDaleConstant(altitude=0.0, gas_composition_dict=None):
     atmospheric_prop = Atmosphere(altitude)
-    temperature      = atmospheric_prop.temperature #[K]
-    density          = atmospheric_prop.density * 1E3 #[g/m^3]
-    num_density      = atmospheric_prop.number_density #[particles/m^3]
-    gladstone_const  = Gladstone_Dale() #[m3/kg]
-    atomic_mass      = aero.air_atomic_mass() #[g/mol] 
-    avogadro_number  = s_consts.N_A                 # [particles/mol]
+    density          = atmospheric_prop.density * 1E3   #[g/m3]
+    num_density      = atmospheric_prop.number_density  #[particles/m3]
+    gladstone_const  = Gladstone_Dale()                 #[m3/kg]
+    atomic_mass      = aero.air_atomic_mass()           #[g/mol]
+    avogadro_number  = s_consts.N_A                     #[particles/mol]
 
-    atm_gladstone = ((0.77 * atomic_mass['N2'] * gladstone_const['N2'] + 
-                     0.23 * atomic_mass['O2'] * gladstone_const['O2']) *
-                     num_density / (density * avogadro_number))
-    return atm_gladstone
+    if gas_composition_dict == None:
+        gas_composition_dict = { }
+        gas_composition_dict['N'] = 0.0
+        gas_composition_dict['O'] = 0.0
+        gas_composition_dict['NO'] = 0.0
+        gas_composition_dict['N2'] = 0.79
+        gas_composition_dict['O2'] = 0.21
+
+    tmp = 0
+    for i in gas_composition_dict.keys():
+        tmp += gas_composition_dict[i] * atomic_mass[i] * gladstone_const[i]
+
+    return tmp * num_density / (density * avogadro_number) #[m3/kg]
 
 
 def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
@@ -185,8 +193,7 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
     for i in pol_consts:
         strip_key = i.strip('+') # remove ion names
         gladstone_dale_const[i] = ( pol_consts[i] / (2 * dielectric_const) * 
-                        (avogadro_number / gas_amu_weight[strip_key]) * 1E3 ) #[m^3/kg]
-
+                (avogadro_number / gas_amu_weight[strip_key]) * 1E3 ) #[m3/kg]
 
     gladstone_dale_dict = { }
     if not gas_density_dict:
@@ -198,13 +205,13 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
                                        gas_density_dict[i]) /
                                       sum(gas_density_dict.values()))
             gladstone_dale_dict['gladstone_dale'] += gladstone_dale_const[i] * gas_density_dict[i]
-        gladstone_dale_dict['gladstone_dale'] /= sum(gas_density_dict.values()) 
+        gladstone_dale_dict['gladstone_dale'] /= sum(gas_density_dict.values())
 
         return gladstone_dale_dict #[m3/kg]
 
 if __name__ == "__main__":
     gd = Gladstone_Dale()
-    gd.update({n: np.round(gd[n] * 1E4, 3) for n in gd.keys()})  
+    gd.update({n: np.round(gd[n] * 1E4, 3) for n in gd.keys()})
     altitude = np.linspace(0, 81E3, 1000)
     dielectric_const_0   = s_consts.epsilon_0 # [F/m] 
     index = atmospheric_index_of_refraction(altitude) 

@@ -15,6 +15,7 @@ import pickle
 import IPython
 import numpy as np
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt 
 
 # My Packages 
@@ -35,35 +36,49 @@ def plot_fields(df_in : pd.core.frame.DataFrame, gd_const : dict,
 
     pickle_path = os.path.join(png_path, 'pickle')
 
+    # Figure size
+    line_width = 3
+    fig_width  = 6
+    fig_height = 5
+    dpi_size   = 600
+    label_size = 15
+    matplotlib.rc('xtick', labelsize=10)
+    matplotlib.rc('ytick', labelsize=10)
+    total_density = sum(density_dict.values()) 
+
+    if ion_dict:
+        ion_density = sum(ion_dict.values()) 
+        total_density += ion_density
     # Plot Density
-    fig = plt.figure()
+    fig = plt.figure(figsize=(fig_width,fig_height))
     for i in density_dict.keys(): 
-        plt.semilogx(df_in['time'], density_dict[i], linewidth=2, label=f'${i}$')
+        plt.semilogx(df_in['time'], density_dict[i]/total_density, linewidth=line_width, label=f'${i}$')
     if cut_dict:
         plt.xlim(cut_dict['density'])
     plt.legend()
-    plt.xlabel('Time $[s]$')
-    plt.ylabel('Density $[kg/m^3]$')
-    plt.savefig(os.path.join(png_path, 
-                f'{csv_in}_densityNeutralTime.png'),
-                format='png', bbox_inches='tight', dpi=1200)
+    plt.xlabel('Time $[s]$', fontsize=label_size)
+    plt.ylabel('Mass fraction $[\;]$', fontsize=label_size)
+    plt.savefig(os.path.join(png_path,
+                f'{csv_in}_massFractionNeutralTime.png'),
+                format='png', bbox_inches='tight', dpi=dpi_size)
     if pickle_flag:
         pickle.dump(fig, open(os.path.join(pickle_path,
-                                f'{csv_in}_densityNeutralTime.pickle'), 'wb'))
+                                f'{csv_in}_massFractionNeutralTime.pickle'), 'wb'))
     plt.close()
 
     # Plot Specific Gladstone-Dale constant
-    fig = plt.figure()
+    fig = plt.figure(figsize=(fig_width,fig_height))
     for i in density_dict.keys(): 
-        plt.semilogx(df_in['time'], gd_const[i]*1E4, linewidth=2, label=f'${i}$')
+        plt.semilogx(df_in['time'], gd_const[i]*1E4, linewidth=line_width, label=f'${i}$')
     if cut_dict:
         plt.xlim(cut_dict['density'])
     plt.legend()
-    plt.xlabel('Time $[s]$')
-    plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$')
+    plt.xlabel('Time $[s]$', fontsize=label_size)
+    plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$',
+               fontsize=label_size)
     plt.savefig(os.path.join(png_path, 
                 f'{csv_in}_gladstoneSpecificNeutralTime.png'),
-                format='png', bbox_inches='tight', dpi=1200)
+                format='png', bbox_inches='tight', dpi=dpi_size)
     if pickle_flag:
         pickle.dump(fig, open(os.path.join(pickle_path, 
                     f'{csv_in}_gladstoneSpecificNeutralTime.pickle'), 'wb'))
@@ -71,86 +86,89 @@ def plot_fields(df_in : pd.core.frame.DataFrame, gd_const : dict,
 
     # Plot ion-Density
     if ion_dict:
-        fig = plt.figure()
+        fig = plt.figure(figsize=(fig_width,fig_height))
         for i in ion_dict.keys():
-            plt.semilogx(df_in['time'], ion_dict[i] * 1E4,
-                         linewidth=2, label=f'${i}$')
+            plt.semilogx(df_in['time'], (ion_dict[i]/total_density) * 1E4,
+                         linewidth=line_width, label=f'${i}$')
+        plt.legend()
+        plt.xlabel('Time $[s]$', fontsize=label_size)
+        plt.ylabel('Mass fraction $\\times 10^{-4}$ $[\;]$', fontsize=label_size)
         if cut_dict:
             plt.xlim(cut_dict['density'])
-        plt.legend()
-        plt.xlabel('Time $[s]$')
-        plt.ylabel('Density $\\times 10^{-4}$ $[kg/m^3]$')
         plt.savefig(os.path.join(png_path, 
-                    f'{csv_in}_densityIonTime.png'),
-                    format='png', bbox_inches='tight', dpi=1200)
+                    f'{csv_in}_massFractionIonTime.png'),
+                    format='png', bbox_inches='tight', dpi=dpi_size)
         if pickle_flag:
             pickle.dump(fig, open(os.path.join(pickle_path,
-                                    f'{csv_in}_densityIonTime.pickle'), 'wb'))
+                                    f'{csv_in}_massFractionIonTime.pickle'), 'wb'))
         plt.close()
         # Plot Specific Gladstone-Dale constant
-        fig = plt.figure()
+        fig = plt.figure(figsize=(fig_width,fig_height))
         del ion_dict['e+']
         for i in ion_dict.keys():
             plt.semilogx(df_in['time'], gd_const[i]*1E7,
-                         linewidth=2, label=f'${i}$')
+                         linewidth=line_width, label=f'${i}$')
+        plt.legend()
+        plt.xlabel('Time $[s]$', fontsize=label_size)
+        plt.ylabel('GladstoneDale const $\\times 10^{-7}\,[m^3/kg]$',
+                   fontsize=label_size)
         if cut_dict:
             plt.xlim(cut_dict['density'])
-        plt.legend()
-        plt.xlabel('Time $[s]$')
-        plt.ylabel('GladstoneDale const $\\times 10^{-7}\,[m^3/kg]$')
         plt.savefig(os.path.join(png_path, 
                     f'{csv_in}_gladstoneSpecificIonTime.png'),
-                    format='png', bbox_inches='tight', dpi=1200)
+                    format='png', bbox_inches='tight', dpi=dpi_size)
         if pickle_flag:
-            pickle.dump(fig, open(os.path.join(pickle_path, 
+            pickle.dump(fig, open(os.path.join(pickle_path,
                     f'{csv_in}_gladstoneSpecificIonTime.pickle'), 'wb'))
         plt.close()
 
     # Plot Temperatures
-    fig = plt.figure()
-    plt.semilogx(df_in['time'], df_in['Tt'], linewidth=2, label='$T_{tr}$')
-    plt.semilogx(df_in['time'], df_in['Tv'], linewidth=2, label='$T_{vr}$')
+    fig = plt.figure(figsize=(fig_width,fig_height))
+    plt.semilogx(df_in['time'], df_in['Tt'], linewidth=line_width, label='$T_{tr}$')
+    plt.semilogx(df_in['time'], df_in['Tv'], linewidth=line_width, label='$T_{vr}$')
+    plt.xlabel('Time $[s]$', fontsize=label_size)
+    plt.ylabel('Temperature $[K]$', fontsize=label_size)
+    plt.legend()
     if cut_dict:
         plt.xlim(cut_dict['temperature'])
-    plt.ylabel('Temperature $[K]$')
-    plt.xlabel('Time $[s]$')
-    plt.legend()
     plt.savefig(os.path.join(png_path, 
                 f'{csv_in}_temperatureTime.png'),
-                format='png', bbox_inches='tight', dpi=1200)
+                format='png', bbox_inches='tight', dpi=dpi_size)
     if pickle_flag:
         pickle.dump(fig, open(os.path.join(pickle_path, 
                     f'{csv_in}_gladstoneSpecificTime.pickle'), 'wb'))
     plt.close() 
 
     # Plot Index of Refraction
-    fig = plt.figure()
-    plt.semilogx(df_in['time'], (index_refraction['dilute'] - 1) * 10**3, linewidth=2)
-    plt.xlabel('Time $[s]$')
-    plt.ylabel('(Index of refraction - 1)$\\times 10^{-3}$ $[\;]$')
+    fig = plt.figure(figsize=(fig_width,fig_height))
+    plt.semilogx(df_in['time'], (index_refraction['dilute'] - 1) * 10**3, linewidth=line_width)
+    plt.xlabel('Time $[s]$', fontsize=label_size)
+    plt.ylabel('(Index of refraction - 1)$\\times 10^{-3}$ $[\;]$',
+               fontsize=label_size)
     if cut_dict:
         plt.xlim(cut_dict['density'])
     plt.savefig(os.path.join(png_path, 
                 f'{csv_in}_indexOfRefractionTime.png'),
-                format='png', bbox_inches='tight', dpi=1200)
+                format='png', bbox_inches='tight', dpi=dpi_size)
     if pickle_flag:
         pickle.dump(fig, open(os.path.join(pickle_path, 
         f'{csv_in}_indexOfRefractionTime.pickle'), 'wb'))
     plt.close() 
 
     # Plot GD using density_dict and GD at sea level 
-    fig = plt.figure()
-    plt.semilogx(df_in['time'], gd_const['gladstone_dale'] * 1E4, linewidth=2,
+    fig = plt.figure(figsize=(fig_width,fig_height))
+    plt.semilogx(df_in['time'], gd_const['gladstone_dale'] * 1E4, linewidth=line_width,
     label='flow')
-    plt.plot(df_in['time'], gds_vec * 1E4, linewidth=2, label='atm')
+    plt.plot(df_in['time'], gds_vec * 1E4, linewidth=line_width, label='atm')
+    plt.legend()
+    plt.xlabel('Time $[s]$', fontsize=label_size)
+    plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$',
+               fontsize=label_size)
     if cut_dict:
         plt.xlim(cut_dict['density'])
-    plt.legend()
-    plt.xlabel('Time $[s]$')
-    plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$')
     plt.savefig(os.path.join(png_path,
                 f'{csv_in}_gladstonedaleConstTime.png'),
-                format='png', bbox_inches='tight', dpi=1200)
+                format='png', bbox_inches='tight', dpi=dpi_size)
     if pickle_flag:
         pickle.dump(fig, open(os.path.join(pickle_path, 
         f'{csv_in}_gladstonedaleConstTime.pickle'), 'wb'))
@@ -212,20 +230,20 @@ def get_cut_Thesis():
                         'temperature':[0, 5E-7] }
 
     cut_dict['1H'] = { 'density' : [1E-9, 4E-6], 
-                               'index'   : [1E-9, 4E-6],
-                               'temperature':[0, 4E-6] }
+                       'index'   : [1E-9, 4E-6],
+                       'temperature':[0, 4E-6] }
 
     cut_dict['2H'] = { 'density' : [1E-9, 1E-6], 
-                               'index'   : [1E-9, 1E-6],
-                               'temperature':[0, 1E-6] }
+                       'index'   : [1E-9, 1E-6],
+                       'temperature':[0, 1E-6] }
 
     cut_dict['5I'] = { 'density' : [1E-8, 1E-5], 
-                                 'index'   : [1E-8, 2E-5],
-                                 'temperature':[0, 1E-5] }
+                       'index'   : [1E-8, 2E-5],
+                       'temperature':[0, 1E-5] }
 
     cut_dict['3I'] = { 'density' : [1E-9, 5E-7], 
-                               'index'   : [1E-9, 1E-6],
-                               'temperature':[0, 5E-7] }
+                       'index'   : [1E-9, 1E-6],
+                       'temperature':[0, 5E-7] }
     return cut_dict
 
 def get_cut_dict():
@@ -261,12 +279,12 @@ def get_cut_dict():
 
 def main():
     data_path = '/Users/martin/Documents/Research/UoA/Projects/aeroOptics/data'
-    data_path = '/Users/martin/Documents/Schools/UoA/Dissertation/CFD/ionization/outputs'
     data_path = '/Users/martin/Documents/Schools/UoA/Dissertation/CFD/heatBath/outputs'
+    data_path = '/Users/martin/Documents/Schools/UoA/Dissertation/CFD/ionization/outputs'
 
     data_out = 'outputFigures'
-    data_out = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/ionization'
     data_out = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/heatBath'
+    data_out = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/ionization'
     files_in = os.listdir(data_path)
     name_in  = [x.split('.')[0] for x in files_in]
     #cut_dict = get_cut_dict()
