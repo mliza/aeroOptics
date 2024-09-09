@@ -39,7 +39,7 @@ a3 = a1^3 * 0.35; % Ogilvie and Koo approx
 eps_0 = 8.8541878128E-12; % [F/m] Vaccuum permittivity
 
 J = [5,15,21];
-v = 0:1:46;
+v = 0:1:20;
 
 alpha = zeros(length(v),length(J));
 
@@ -69,6 +69,16 @@ alpha_Fm = 4 * pi * eps_0 * alpha;
 x = [v', alpha(:,1)*1E30, alpha(:,2)*1E30, alpha(:,3)*1E30, alpha_Fm(:,1)*1E40, alpha_Fm(:,2)*1E40, alpha_Fm(:,3)*1E40];
 
 save alpha.dat x -ascii
+
+J5 = [v',alpha_Fm(:,1)];
+J15 = [v',alpha_Fm(:,2)];
+J21 = [v',alpha_Fm(:,3)];
+
+writematrix(J5,'J5_buldakov.csv');
+writematrix(J15,'J15_buldakov.csv');
+writematrix(J21,'J21_buldakov.csv');
+
+
 
 figure(1)
 plot(alpha)

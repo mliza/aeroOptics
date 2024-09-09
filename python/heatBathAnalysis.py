@@ -158,8 +158,9 @@ def plot_fields(df_in : pd.core.frame.DataFrame, gd_const : dict,
     # Plot GD using density_dict and GD at sea level 
     fig = plt.figure(figsize=(fig_width,fig_height))
     plt.semilogx(df_in['time'], gd_const['gladstone_dale'] * 1E4, linewidth=line_width,
-    label='flow')
-    plt.plot(df_in['time'], gds_vec * 1E4, linewidth=line_width, label='atm')
+    label='nonequilibrium')
+    plt.plot(df_in['time'], gds_vec * 1E4, linewidth=line_width,
+             label='equilibrium')
     plt.legend()
     plt.xlabel('Time $[s]$', fontsize=label_size)
     plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$',
@@ -278,17 +279,17 @@ def get_cut_dict():
     return cut_dict
 
 def main():
-    data_path = '/Users/martin/Documents/Research/UoA/Projects/aeroOptics/data'
     data_path = '/Users/martin/Documents/Schools/UoA/Dissertation/CFD/heatBath/outputs'
     data_path = '/Users/martin/Documents/Schools/UoA/Dissertation/CFD/ionization/outputs'
+    data_path = '/Users/martin/Documents/Research/UoA/Projects/aeroOptics/data'
 
-    data_out = 'outputFigures'
     data_out = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/heatBath'
     data_out = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/ionization'
+    data_out = 'outputFigures'
     files_in = os.listdir(data_path)
     name_in  = [x.split('.')[0] for x in files_in]
-    #cut_dict = get_cut_dict()
-    cut_dict = get_cut_Thesis()
+    cut_dict = get_cut_dict()
+    #cut_dict = get_cut_Thesis()
 
     for f_in in name_in: 
         df_in, density_dict, ion_dict = get_density_dict(data_path,
@@ -300,8 +301,17 @@ def main():
 
         # Gladstone-Dale constant and index of refraction at sea level
         gd = optics.Gladstone_Dale()
-        gds = optics.atmospheric_gladstoneDaleConstant(0.0) #[m]
+        tot_density = sum(density_dict.values())[0]
+        # Calculate mass fraction and this works
+        mass_fraction = dict([(key, value[0] / tot_density) for key, value 
+                              in density_dict.items()])
+
+        gds = 0.0
+        for key in mass_fraction.keys():
+            gds += (gd[key] * mass_fraction[key])
+
         gds_vec = gds * np.ones(np.shape(df_in['time'])) 
+
 
         # Clean up density dictionary
         if ion_dict:

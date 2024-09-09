@@ -172,12 +172,14 @@ def atmospheric_gladstoneDaleConstant(altitude=0.0, gas_composition_dict=None):
 
     tmp = 0
     for i in gas_composition_dict.keys():
-        tmp += gas_composition_dict[i] * atomic_mass[i] * gladstone_const[i]
+        #tmp += gas_composition_dict[i] * atomic_mass[i] * gladstone_const[i]
+        tmp += gas_composition_dict[i] * gladstone_const[i] 
 
-    return tmp * num_density / (density * avogadro_number) #[m3/kg]
+    #return tmp * num_density / (density * avogadro_number) #[m3/kg]
+    return tmp 
 
 
-def Gladstone_Dale(gas_density_dict=None): # [kg/m3]
+def Gladstone_Dale(gas_density_dict=None): # [kg/m3
     gas_amu_weight   = aero.air_atomic_mass()       # [g/mol]
     avogadro_number  = s_consts.N_A                 # [particles/mol]
     dielectric_const = s_consts.epsilon_0           # [F/m]
