@@ -160,7 +160,7 @@ def plot_fields(df_in : pd.core.frame.DataFrame, gd_const : dict,
     plt.semilogx(df_in['time'], gd_const['gladstone_dale'] * 1E4, linewidth=line_width,
     label='nonequilibrium')
     plt.plot(df_in['time'], gds_vec * 1E4, linewidth=line_width,
-             label='equilibrium')
+             label='t=0')
     plt.legend()
     plt.xlabel('Time $[s]$', fontsize=label_size)
     plt.ylabel('GladstoneDale const $\\times 10^{-4}\,[m^3/kg]$',
@@ -174,6 +174,9 @@ def plot_fields(df_in : pd.core.frame.DataFrame, gd_const : dict,
         pickle.dump(fig, open(os.path.join(pickle_path, 
         f'{csv_in}_gladstonedaleConstTime.pickle'), 'wb'))
     plt.close() 
+
+
+
 
 
 def get_density_dict(data_path : str, f_in : str) -> tuple[dict, object, dict]:
@@ -281,10 +284,10 @@ def get_cut_dict():
 def main():
     data_path = '/Users/martin/Documents/Schools/UoA/Dissertation/CFD/heatBath/outputs'
     data_path = '/Users/martin/Documents/Schools/UoA/Dissertation/CFD/ionization/outputs'
-    data_path = '/Users/martin/Documents/Research/UoA/Projects/aeroOptics/data'
 
     data_out = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/heatBath'
     data_out = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/ionization'
+    data_path = '/Users/martin/Documents/Research/UoA/Projects/aeroOptics/data'
     data_out = 'outputFigures'
     files_in = os.listdir(data_path)
     name_in  = [x.split('.')[0] for x in files_in]
