@@ -92,7 +92,8 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         plt.legend()
         plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
         plt.ylabel('Temperature $[K]$', fontsize=fig_config['label_size'])
-        if i in cut_dict and 'temperature' in cut_dict[i]:
+
+        if cut_dict and i in cut_dict and 'temperature' in cut_dict[i]:
             plt.xlim(cut_dict[i]['temperature'])
         plt.savefig(os.path.join(output_png_path, f'{i}_temperatures.png'),
                     format = 'png', bbox_inches='tight',
@@ -103,18 +104,38 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         ### Mass Fraction ###
         fig = plt.figure(figsize=(fig_config['fig_width'],
                                 fig_config['fig_height']))
+        total_density = sum(tmp['neutral_sp'].values())
+        axes1 = fig.add_subplot(111)
+
+        # Create a secondary axis if ion exists
         if tmp['ion_sp']:
-            IPython. embed(colors = 'Linux')
+            axes2 = axes1.twinx()
+
         # Plot Mass Fraction 
         for j in tmp['neutral_sp'].keys():
-            plt.semilogx(tmp['temperature']['time'],
-                         tmp['neutral_sp'][j]/sum(tmp['neutral_sp'].values()),
+            # Plot Neutral species
+            axes1.semilogx(tmp['temperature']['time'],
+                         tmp['neutral_sp'][j]/total_density,
                          linewidth=fig_config['line_width'],
                          label=f'${j}$')
-        plt.legend()
+            # Plot Ions
+            if tmp['ion_sp']:
+                axes2.semilogx(tmp['temperature']['time'],
+                             tmp['ion_sp'][f'{j}+']/total_density * 1E3,
+                             linestyle='dotted',
+                             linewidth=fig_config['line_width'],
+                             label=f'${j}+$')
+
+        axes1.legend()
+        axes1.set_ylabel('Mass Fraction $[\;]$', fontsize=fig_config['label_size'])
         plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
-        plt.ylabel('Mass fraction $[\;]$', fontsize=fig_config['label_size'])
-        if i in cut_dict and 'massFraction' in cut_dict[i]:
+        # Modified axis for ions
+        if tmp['ion_sp']:
+            axes1.set_ylabel('Neutral Species $[\;]$', fontsize=fig_config['label_size'])
+            axes2.set_ylabel('Ion Species $\\times 10^{-3}$ $[\;]$', fontsize=fig_config['label_size'])
+            axes2.legend()
+
+        if cut_dict and i in cut_dict and 'massFraction' in cut_dict[i]:
             plt.xlim(cut_dict[i]['massFraction'])
         plt.savefig(os.path.join(output_png_path, f'{i}_massFraction.png'),
                     format = 'png', bbox_inches='tight',
@@ -124,16 +145,38 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         # Plot Specific GladStone-Dale constant
         fig = plt.figure(figsize=(fig_config['fig_width'],
                                 fig_config['fig_height']))
+        axes1 = fig.add_subplot(111)
+
+        # Create a secondary axis if ion exists
+        if tmp['ion_sp']:
+            axes2 = axes1.twinx()
+
         for j in tmp['neutral_sp'].keys(): 
-            plt.semilogx(tmp['temperature']['time'],
+            axes1.semilogx(tmp['temperature']['time'],
                          tmp['gladstone_species'][j] * 1E4,
                          linewidth=fig_config['line_width'],
                          label=f'${j}$')
-        plt.legend()
+            # Plot Ions
+            if tmp['ion_sp']:
+                axes2.semilogx(tmp['temperature']['time'],
+                               tmp['gladstone_species'][f'{j}+'] * 1E7,
+                             linestyle='dotted',
+                             linewidth=fig_config['line_width'],
+                             label=f'${j}+$')
+        axes1.legend()
         plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
-        plt.ylabel('Species Gladstone-Dale $\\times 10^{-4}\,[m^3/kg]$',
+        axes1.set_ylabel('Neutral Species $\\times 10^{-4}\,[m^3/kg]$',
                    fontsize=fig_config['label_size'])
-        if i in cut_dict and 'speciesGladstone' in cut_dict[i]:
+        axes1.set_ylabel('Species Gladstone-Dale $\\times 10^{-4}\,[m^3/kg]$',
+                   fontsize=fig_config['label_size'])
+        if tmp['ion_sp']:
+            axes2.set_ylabel('Ion Species $\\times 10^{-7}\,[m^3/kg]$',
+                   fontsize=fig_config['label_size'])
+            axes1.set_ylabel('Neutral Species $\\times 10^{-4}\,[m^3/kg]$',
+                   fontsize=fig_config['label_size'])
+            axes2.legend()
+
+        if cut_dict and i in cut_dict and 'speciesGladstone' in cut_dict[i]:
             plt.xlim(cut_dict[i]['speciesGladstone'])
         plt.savefig(os.path.join(output_png_path, f'{i}_speciesGladstoneDale.png'),
                     format = 'png', bbox_inches='tight',
@@ -155,7 +198,7 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
         plt.ylabel('Total Gladstone-Dale $\\times 10^{-4}\,[m^3/kg]$',
                    fontsize=fig_config['label_size'])
-        if i in cut_dict and 'totalGladstone' in cut_dict[i]:
+        if cut_dict and i in cut_dict and 'totalGladstone' in cut_dict[i]:
             plt.xlim(cut_dict[i]['totalGladstone'])
         plt.savefig(os.path.join(output_png_path, f'{i}_totalGladstoneDale.png'),
                     format = 'png', bbox_inches='tight',
@@ -165,15 +208,15 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         # Plot Refractive Index dense and dilute 
         plt.semilogx(tmp['temperature']['time'],
                      (tmp['refraction_index']['dilute'] - 1) * 1E4,
-                     linewidth = fig_config['line_width'], label = f'{i}, dilute')
+                     linewidth = fig_config['line_width'], label = 'dilute')
         plt.semilogx(tmp['temperature']['time'],
                      (tmp['refraction_index']['dense'] - 1) * 1E4, '--',
-                     linewidth = fig_config['line_width'], label = f'{i}, dense')
+                     linewidth = fig_config['line_width'], label = 'dense')
         plt.legend()
         plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
         plt.ylabel('(Refraction Index $- 1$) $\\times 10^{-4}\,[\;]$', 
                    fontsize=fig_config['label_size'])
-        if i in cut_dict and 'refractiveIndex' in cut_dict[i]:
+        if cut_dict and i in cut_dict and 'refractiveIndex' in cut_dict[i]:
             plt.xlim(cut_dict[i]['refractiveIndex'])
         plt.savefig(os.path.join(output_png_path, f'{i}_refractionIndex.png'),
                     format = 'png', bbox_inches='tight',
@@ -244,39 +287,53 @@ def helper_correlations(x_array, y_array):
 def get_chemistry_cut():
     cut_dict = { } 
 
+    # Non species
     cut_dict['1C']  = { 'temperature'      : [1E-10, 3E-6], 
-                        'massFraction'     : [1E-10, 3E-6], 
-                        'speciesGladstone' : [1E-10, 3E-6],
-                        'refractiveIndex'  : [1E-10, 3E-6],
-                        'totalGladstone'   : [1E-10, 3E-6] }
+                        'massFraction'     : [1E-9, 3E-6], 
+                        'speciesGladstone' : [1E-9, 3E-6],
+                        'refractiveIndex'  : [1E-9, 3E-6],
+                        'totalGladstone'   : [1E-9, 3E-6] }
 
     cut_dict['2C']  = { 'temperature'      : [1E-10, 3E-6], 
-                        'massFraction'     : [1E-10, 3E-6], 
-                        'speciesGladstone' : [1E-10, 3E-6],
-                        'refractiveIndex'  : [1E-10, 3E-6],
-                        'totalGladstone'   : [1E-10, 3E-6] }
+                        'massFraction'     : [1E-9, 3E-6], 
+                        'speciesGladstone' : [1E-9, 3E-6],
+                        'refractiveIndex'  : [1E-9, 3E-6],
+                        'totalGladstone'   : [1E-9, 3E-6] }
 
-    cut_dict['3C']  = { 'temperature'      : [1E-10, 2E-6], 
+    cut_dict['3C']  = { 'temperature'      : [1E-10, 8E-7], 
                         'massFraction'     : [1E-10, 2E-6], 
                         'speciesGladstone' : [1E-10, 2E-6],
-                        'refractiveIndex'  : [1E-10, 2E-6],
-                        'totalGladstone'   : [1E-10, 2E-6] }
+                        'refractiveIndex'  : [1E-10, 5E-7],
+                        'totalGladstone'   : [1E-10, 5E-7] }
+
+    # Species
+    cut_dict['1S1']  = { 'temperature'      : [1E-10, 1E-6], 
+                         'massFraction'     : [5E-10, 5E-7], 
+                         'speciesGladstone' : [5E-10, 5E-7],
+                         'refractiveIndex'  : [1E-10, 1E-6],
+                         'totalGladstone'   : [1E-10, 1E-6] }
+
+    cut_dict['1S2']  = { 'temperature'      : [1E-10, 1E-6], 
+                         'massFraction'     : [5E-10, 1E-6], 
+                         'speciesGladstone' : [5E-10, 1E-6],
+                         'refractiveIndex'  : [5E-10, 1E-6],
+                         'totalGladstone'   : [5E-10, 1E-6] }
+
+    cut_dict['2S1']  = { 'temperature'      : [1E-10, 1E-4], 
+                         'massFraction'     : [1E-8, 3E-5], 
+                         'speciesGladstone' : [1E-8, 3E-5],
+                         'refractiveIndex'  : [2E-9, 8E-5],
+                         'totalGladstone'   : [2E-9, 8E-5] }
+
+    cut_dict['2S2']  = { 'temperature'      : [1E-10, 1E-4], 
+                         'massFraction'     : [1E-8, 3E-5], 
+                         'speciesGladstone' : [1E-8, 3E-5],
+                         'refractiveIndex'  : [2E-9, 8E-5],
+                         'totalGladstone'   : [2E-9, 8E-5] }
     return cut_dict
 
 
-def optical_properties(cfd_results_abs_path, fig_config, cut_dict=None):
-
-    # Species #
-    data_in_path = os.path.join(cfd_results_abs_path, 'species', 'outputs')
-    files_in = ['1S1.csv', '2S1.csv', '1S2.csv', '2S2.csv']
-    output_png_path = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/species'
-    # Species #
-
-    # Chemistry Composition # 
-    data_in_path = os.path.join(cfd_results_abs_path, 'chemistryComposition', 'outputs')
-    files_in = ['1C.csv', '2C.csv', '3C.csv']
-    output_png_path = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/chemistryComposition'
-    # Chemistry Composition # 
+def optical_properties(data_in_path, files_in, output_png_path, fig_config, cut_dict=None):
 
     name_in  = [x.split('.')[0] for x in files_in]
     dict_data = { }
@@ -329,11 +386,23 @@ def main(cfd_results_abs_path):
     fig_config['legend_size'] = 10 
     matplotlib.rc('xtick', labelsize=10)
     matplotlib.rc('ytick', labelsize=10)
+    species_flag = True 
 
+    if not species_flag:
+        # Chemistry Composition # 
+        data_in_path = os.path.join(cfd_results_abs_path, 'chemistryComposition', 'outputs')
+        files_in = ['1C.csv', '2C.csv', '3C.csv']
+        output_png_path = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/chemistryComposition'
+        # Chemistry Composition # 
+    else:
+        # Species #
+        data_in_path = os.path.join(cfd_results_abs_path, 'species', 'outputs')
+        files_in = ['1S1.csv', '2S1.csv', '1S2.csv', '2S2.csv']
+        output_png_path = '/Users/martin/Documents/Schools/UoA/Dissertation/figures/chapter5/species'
+        # Species #
 
     cut_dict_chemistry = get_chemistry_cut()
-    #chemistry_composition(cfd_results_abs_path, fig_config, cut_dict_chemistry)
-    optical_properties(cfd_results_abs_path, fig_config, cut_dict_chemistry)
+    optical_properties(data_in_path, files_in, output_png_path,  fig_config,  cut_dict_chemistry)
 
 
 
