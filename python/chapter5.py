@@ -319,13 +319,13 @@ def get_chemistry_cut():
                          'refractiveIndex'  : [5E-10, 1E-6],
                          'totalGladstone'   : [5E-10, 1E-6] }
 
-    cut_dict['2S1']  = { 'temperature'      : [1E-10, 1E-4], 
+    cut_dict['2S1']  = { 'temperature'      : [1E-9, 1E-4], 
                          'massFraction'     : [1E-8, 3E-5], 
                          'speciesGladstone' : [1E-8, 3E-5],
                          'refractiveIndex'  : [2E-9, 8E-5],
                          'totalGladstone'   : [2E-9, 8E-5] }
 
-    cut_dict['2S2']  = { 'temperature'      : [1E-10, 1E-4], 
+    cut_dict['2S2']  = { 'temperature'      : [1E-9, 1E-4], 
                          'massFraction'     : [1E-8, 3E-5], 
                          'speciesGladstone' : [1E-8, 3E-5],
                          'refractiveIndex'  : [2E-9, 8E-5],
