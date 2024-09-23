@@ -314,20 +314,20 @@ def get_chemistry_cut():
                          'totalGladstone'   : [1E-10, 1E-6] }
 
     cut_dict['1S2']  = { 'temperature'      : [1E-10, 1E-6], 
-                         'massFraction'     : [5E-10, 1E-6], 
-                         'speciesGladstone' : [5E-10, 1E-6],
+                         'massFraction'     : [5E-10, 5E-7], 
+                         'speciesGladstone' : [5E-10, 5E-7],
                          'refractiveIndex'  : [5E-10, 1E-6],
                          'totalGladstone'   : [5E-10, 1E-6] }
 
     cut_dict['2S1']  = { 'temperature'      : [1E-9, 1E-4], 
-                         'massFraction'     : [1E-8, 3E-5], 
-                         'speciesGladstone' : [1E-8, 3E-5],
+                         'massFraction'     : [1E-8, 5E-5], 
+                         'speciesGladstone' : [1E-8, 5E-5],
                          'refractiveIndex'  : [2E-9, 8E-5],
                          'totalGladstone'   : [2E-9, 8E-5] }
 
     cut_dict['2S2']  = { 'temperature'      : [1E-9, 1E-4], 
-                         'massFraction'     : [1E-8, 3E-5], 
-                         'speciesGladstone' : [1E-8, 3E-5],
+                         'massFraction'     : [1E-8, 5E-5], 
+                         'speciesGladstone' : [1E-8, 5E-5],
                          'refractiveIndex'  : [2E-9, 8E-5],
                          'totalGladstone'   : [2E-9, 8E-5] }
     return cut_dict
@@ -408,5 +408,5 @@ def main(cfd_results_abs_path):
 
 
 if __name__=="__main__":
-    cfd_results_abs_path = "/Users/martin/Documents/Schools/UoA/Dissertation/CFD"
+    cfd_results_abs_path = "/Users/martin/Documents/Schools/UoA/Dissertation/resultsCFD"
     main(cfd_results_abs_path)
