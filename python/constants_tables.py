@@ -31,8 +31,8 @@ def polarizability(): #follows SU2 MutationPP format
                  'N'    : 1.100E-24,
                  'O'    : 0.802E-24,
                  'NO'   : 1.700E-24,
-                 'N2'   : 1.740E-24,
-                 'O2'   : 1.581E-24 } # [cm^3]  
+                 'N2'   : 1.7403E-24,
+                 'O2'   : 1.5689E-24 } # [cm^3]  
     return dict_out 
 
     
@@ -65,10 +65,31 @@ below
     return dict_out #[m^3]
 
 def parameters_mean_polarizability(molecule='N2'):
+    #https://onlinelibrary.wiley.com/doi/10.1002/bbpc.19920960517
+    # Check reference in paper
     dict_out = { }
-    #if molecule == 'H2':
-    #if molecule == 'N2':
-    #if molecule == 'O2':
+    if molecule == 'H2':
+        dict_out['groundPolarizability'] = 0.80320 * 1E30 #[m^3]
+        dict_out['groundFrequency'] = 2.1399 * 1E-16 # [1/s]
+        dict_out['b'] = 5.87 * 1E6 # [1/K]
+        dict_out['c'] = 7.544 * 1E9 # [1/K^2]
+
+    if molecule == 'N2':
+        dict_out['groundPolarizability'] = 1.7406 * 1E30 #[m^3]
+        dict_out['groundFrequency'] = 2.6049 * 1E-16 # [1/s]
+        dict_out['b'] = 1.8 * 1E6 # [1/K]
+        dict_out['c'] = 0.683# [1/K^2]
+        #dict_out['c'] = 0.0 
+    if molecule == 'O2':
+        dict_out['groundPolarizability'] = 1.5658 * 1E30 #[m^3]
+        dict_out['groundFrequency'] = 2.1801 * 1E-16 # [1/s]
+        dict_out['b'] = -2.369 * 1E6 # [1/K]
+        dict_out['c'] = 8.687 * 1E9# [1/K^2]
+    if molecule == 'Air':
+        dict_out['groundPolarizability'] = 1.6970 * 1E30 #[m^3]
+        dict_out['groundFrequency'] = 2.47044 * 1E-16 # [1/s]
+        dict_out['b'] = 10.6 * 1E6 # [1/K]
+        dict_out['c'] = 7.909 * 1E9# [1/K^2]
 
     return dict_out
 

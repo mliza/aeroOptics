@@ -97,50 +97,61 @@ def optical_path_length(n_solution, distance):
     return OPL 
 
 # Calculate polarizability (uses equation 4 from the paper)
-# https://link.springer.com/article/10.1134/BF03355985 
-def polarizability_constant(T_vib=2280):
-    # These should be inputs <?>  
-    rotational_qn  = [5, 15, 21];        #[ ] 
-    vibrational_qn = np.arange(0, 46, 1) #[ ]  
+def buldakov_method(T_vib=2280):
+    a = 2
 
-    # Physical constants  
-    boltzmann_const      = s_consts.Boltzmann      #[J/K]  
-    plancks_const        = s_consts.Planck         #[Js]  
-    speed_of_light       = s_consts.speed_of_light #[m/s]
-    dielectric_const_vac = s_consts.epsilon_0      #[F/m] 
+# Calculate polarizability as temperature
+"""
+    DOI: 10.1002/bbpc.19920960517 
+    DOI: 10.1134/BF03355985
+"""
+def kerl_polarizability(wavelength_nm=633, temperature_K=1000):
+    mean_const_N2 = constants_tables.parameters_mean_polarizability('N2')
+    mean_const_O2 = constants_tables.parameters_mean_polarizability('O2')
+    frequency_Hz  = [s_consts.speed_of_light / (wavelength_nm * 1E-9)]
+    const_polarizability = constants_tables.polarizability() #[cm^3]
 
-    # Algorithm Constants (Buldakov), move this to a table outside  
-    # Constants below are for O2 (tab 1) from main paper
-    a_e  = 1.61E-30  #[m^3] DOI: 10.1002/bbpc.19920960517 
-    a_e1 = 1.76E-30  #[m^3] https://ui.adsabs.harvard.edu/abs/1987OptSp..63..460B/exportcitation  
-    a_e2 = 3.40E-30  #[m^3] https://ui.adsabs.harvard.edu/abs/1987OptSp..63..460B/exportcitation
-    a_e3 = -23.7E-30 #[m^3] DOI: 10.1063/1.467256
-    B_e  = 1.4376766 #[m^3] From NIST/2T code NOTE: Note sure what this is 
-    # NOTE: From Dhuram, below eq. 2 
-    #reduced_mass =
-    #equilibrium_nuclear_separation = 
-    # B_e = ( plancks_const / (8 * np.pi * reduced_mass * 
-            #  equilibrium_nuclear_separation * speed_of_light) )
-    # NOTE: From Dhuram, below eq. 2 
+    for i in frequency_Hz:
+        # Calculate N2
+        tmp_N2 = mean_const_N2['c'] * temperature_K**2
+        tmp_N2 += mean_const_N2['b'] * temperature_K
+        tmp_N2 += 1
+        tmp_N2 *= mean_const_N2['groundPolarizability']
+        tmp_N2 /= ((i / mean_const_N2['groundFrequency'])**2 - 1)
 
-    # Species properties 
-    T_vib = T_vib #[K], Nonequilibrium Gas Dynamics and 
-                        #Molecular Simulations (Boyd), Table 2.4 
-    vibrational_frequency = (boltzmann_const / plancks_const) * T_vib  #[Hz] 
+        omegaRatio_N2 = mean_const_N2['c'] * temperature_K**2
+        omegaRatio_N2 += mean_const_N2['b'] * temperature_K
+        omegaRatio_N2 += 1 
+        omegaRatio_N2 *= mean_const_N2['groundPolarizability'] 
+        omegaRatio_N2 /= (1.765 * 1E-30)
+        omega_N2 = np.sqrt((omegaRatio_N2 - 1) * mean_const_N2['groundFrequency']**2)
+        lambda_N2 = (s_consts.speed_of_light / omega_N2) * 1E9  
+
+        # Calculate O2
+        tmp_O2 = mean_const_O2['c'] * temperature_K**2
+        tmp_O2 += mean_const_O2['b'] * temperature_K
+        tmp_O2 += 1
+        tmp_O2 *= mean_const_O2['groundPolarizability']
+        tmp_O2 /= ((i / mean_const_O2['groundFrequency'])**2 - 1)
+
+        omegaRatio_O2 = mean_const_O2['c'] * temperature_K**2
+        omegaRatio_O2 += mean_const_O2['b'] * temperature_K
+        omegaRatio_O2 += 1 
+        omegaRatio_O2 *= mean_const_O2['groundPolarizability'] 
+        omegaRatio_O2 /= (1.605 * 1E-30) 
+        omega_O2 =  np.sqrt((omegaRatio_O2 - 1) *
+                            mean_const_O2['groundFrequency']**2)
+        lambda_O2 = (s_consts.speed_of_light / omega_O2) * 1E9  
 
 
-    # NOTE: Not sure what this is  
-    # Y_{i,j}, i = vibrational QN, and j = rotational quantum number 
-    alpha_e = 0.01593  #[1/cm], classical frequency of small oscillations  
-    omega_e = 1580.193 #[1/cm]
+        
+
+    IPython.embed(colors = "Linux")
 
 
 
-    # NOTE: Check where they come from 
-    # Calculate constants using approximations 
-    # Dunham approximation, DOI: 10.1103/PhysRev.41.721, Eq. 19 
-    a_1 = -( alpha_e * omega_e / (6 *B_e**2) ) - 1 
-    a_2 = (5/4) * a_1**2 - (2/3) * ( ) 
+
+
 
 # http://walter.bislins.ch/bloge/index.asp?page=Deriving+Equations+for+Atmospheric+Refraction
 def atmospheric_index_of_refraction(altitude): 
@@ -219,7 +230,10 @@ if __name__ == "__main__":
     index = atmospheric_index_of_refraction(altitude) 
     gd_s = atmospheric_gladstoneDaleConstant(altitude) 
 
-    IPython.embed(colors = 'Linux')
+    kerl_polarizability(wavelength_nm=633, temperature_K=1000)
+    #kerl_polarizability(wavelength_nm=0.0273, temperature_K=1000) #for N2
+    #kerl_polarizability(wavelength_nm=1.49E-5, temperature_K=1000) #for O2
+
 
     # MAKING PLOTS #
     plt.plot(index, altitude*1E-3, linewidth=2.5) 
