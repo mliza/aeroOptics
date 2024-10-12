@@ -93,6 +93,24 @@ def parameters_mean_polarizability(molecule='N2'):
 
     return dict_out
 
+def spectroscopy_constants(molecule='N2'):
+    # https://doi.org/10.1063/1.2436891
+    dict_out = { }
+    # harmonic vibratonal frequency (omega_e) 
+    # first anharmonicity vibrational constant (omega_e xi_e)
+    # (omega_e y_e)
+    # (B_e)
+    # vibration-rotation coupling constant (alpha_e) 
+
+    if molecule == 'N2':
+        dict_out['harmonic'] = 2358.57
+        dict_out['anharmonic'] = 14.34 
+        dict_out[''] = -0.00226
+        dict_out[''] = 1.998241
+        dict_out[''] = 0.017318
+
+    return dict_out #wavenumber units  #[cm^-1]
+
 
     
 
