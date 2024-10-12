@@ -108,16 +108,18 @@ def buldakov_method(T_vib=2280):
 def kerl_polarizability(wavelength_nm=633, temperature_K=1000):
     mean_const_N2 = constants_tables.parameters_mean_polarizability('N2')
     mean_const_O2 = constants_tables.parameters_mean_polarizability('O2')
-    frequency_Hz  = [s_consts.speed_of_light / (wavelength_nm * 1E-9)]
+    frequency_Hz = [2 * np.pi * s_consts.speed_of_light / (wavelength_nm * 1E-9)]
     const_polarizability = constants_tables.polarizability() #[cm^3]
+    wavenumber = 1 / (wavelength_nm * 1E-9)
 
+    #frequency_Hz = [3 * 1E-15]
     for i in frequency_Hz:
         # Calculate N2
         tmp_N2 = mean_const_N2['c'] * temperature_K**2
         tmp_N2 += mean_const_N2['b'] * temperature_K
         tmp_N2 += 1
         tmp_N2 *= mean_const_N2['groundPolarizability']
-        tmp_N2 /= ((i / mean_const_N2['groundFrequency'])**2 - 1)
+        tmp_N2 /= (1-(i / mean_const_N2['groundFrequency'])**2)
 
         omegaRatio_N2 = mean_const_N2['c'] * temperature_K**2
         omegaRatio_N2 += mean_const_N2['b'] * temperature_K
@@ -132,7 +134,7 @@ def kerl_polarizability(wavelength_nm=633, temperature_K=1000):
         tmp_O2 += mean_const_O2['b'] * temperature_K
         tmp_O2 += 1
         tmp_O2 *= mean_const_O2['groundPolarizability']
-        tmp_O2 /= ((i / mean_const_O2['groundFrequency'])**2 - 1)
+        tmp_O2 /= (1-(i / mean_const_O2['groundFrequency'])**2)
 
         omegaRatio_O2 = mean_const_O2['c'] * temperature_K**2
         omegaRatio_O2 += mean_const_O2['b'] * temperature_K
