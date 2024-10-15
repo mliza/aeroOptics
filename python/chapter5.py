@@ -128,11 +128,12 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
 
         axes1.legend()
         axes1.set_ylabel('Mass Fraction $[\;]$', fontsize=fig_config['label_size'])
-        plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
+        axes1.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
         # Modified axis for ions
         if tmp['ion_sp']:
             axes1.set_ylabel('Neutral Species $[\;]$', fontsize=fig_config['label_size'])
             axes2.set_ylabel('Ion Species $\\times 10^{-3}$ $[\;]$', fontsize=fig_config['label_size'])
+            axes2.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
             axes2.legend()
 
         if cut_dict and i in cut_dict and 'massFraction' in cut_dict[i]:
@@ -164,7 +165,7 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
                              linewidth=fig_config['line_width'],
                              label=f'${j}+$')
         axes1.legend()
-        plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
+        axes1.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
         axes1.set_ylabel('Neutral Species $\\times 10^{-4}\,[m^3/kg]$',
                    fontsize=fig_config['label_size'])
         axes1.set_ylabel('Species Gladstone-Dale $\\times 10^{-4}\,[m^3/kg]$',
@@ -174,6 +175,7 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
                    fontsize=fig_config['label_size'])
             axes1.set_ylabel('Neutral Species $\\times 10^{-4}\,[m^3/kg]$',
                    fontsize=fig_config['label_size'])
+            axes2.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
             axes2.legend()
 
         if cut_dict and i in cut_dict and 'speciesGladstone' in cut_dict[i]:

@@ -105,50 +105,25 @@ def buldakov_method(T_vib=2280):
     DOI: 10.1002/bbpc.19920960517 
     DOI: 10.1134/BF03355985
 """
-def kerl_polarizability(wavelength_nm=633, temperature_K=1000):
-    mean_const_N2 = constants_tables.parameters_mean_polarizability('N2')
-    mean_const_O2 = constants_tables.parameters_mean_polarizability('O2')
-    frequency_Hz = [2 * np.pi * s_consts.speed_of_light / (wavelength_nm * 1E-9)]
-    const_polarizability = constants_tables.polarizability() #[cm^3]
-    wavenumber = 1 / (wavelength_nm * 1E-9)
+def kerl_polarizability_temperature(temperature_K=1000, molecule='N2', 
+                                    wavelength_nm=633):
+    mean_cost = constants_tables.parameters_mean_polarizability(molecule)
+    angular_frequency = [2 * np.pi * s_consts.speed_of_light /
+                         (wavelength_nm * 1E-9)]
 
-    #frequency_Hz = [3 * 1E-15]
-    for i in frequency_Hz:
-        # Calculate N2
-        tmp_N2 = mean_const_N2['c'] * temperature_K**2
-        tmp_N2 += mean_const_N2['b'] * temperature_K
-        tmp_N2 += 1
-        tmp_N2 *= mean_const_N2['groundPolarizability']
-        tmp_N2 /= (1-(i / mean_const_N2['groundFrequency'])**2)
+    IPython.embed(colors = 'Linux')
+    for i in angular_frequency:
+        for j in temperature_K:
+            tmp = mean_const['c'] * temperature_K**2
+            tmp += mean_const['b'] * temperature_K
+            tmp += 1
+            tmp *= mean_const['groundPolarizability']
+            tmp /= (1-(i / mean_const['groundFrequency'])**2)
 
-        omegaRatio_N2 = mean_const_N2['c'] * temperature_K**2
-        omegaRatio_N2 += mean_const_N2['b'] * temperature_K
-        omegaRatio_N2 += 1 
-        omegaRatio_N2 *= mean_const_N2['groundPolarizability'] 
-        omegaRatio_N2 /= (1.765 * 1E-30)
-        omega_N2 = np.sqrt((omegaRatio_N2 - 1) * mean_const_N2['groundFrequency']**2)
-        lambda_N2 = (s_consts.speed_of_light / omega_N2) * 1E9  
-
-        # Calculate O2
-        tmp_O2 = mean_const_O2['c'] * temperature_K**2
-        tmp_O2 += mean_const_O2['b'] * temperature_K
-        tmp_O2 += 1
-        tmp_O2 *= mean_const_O2['groundPolarizability']
-        tmp_O2 /= (1-(i / mean_const_O2['groundFrequency'])**2)
-
-        omegaRatio_O2 = mean_const_O2['c'] * temperature_K**2
-        omegaRatio_O2 += mean_const_O2['b'] * temperature_K
-        omegaRatio_O2 += 1 
-        omegaRatio_O2 *= mean_const_O2['groundPolarizability'] 
-        omegaRatio_O2 /= (1.605 * 1E-30) 
-        omega_O2 =  np.sqrt((omegaRatio_O2 - 1) *
-                            mean_const_O2['groundFrequency']**2)
-        lambda_O2 = (s_consts.speed_of_light / omega_O2) * 1E9  
-
+    IPython.embed(colors = 'Linux')
 
         
 
-    IPython.embed(colors = "Linux")
 
 
 
@@ -224,6 +199,62 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3
 
         return gladstone_dale_dict #[m3/kg]
 
+
+# Irikura: 10.1063/1.2436891
+def zero_point_energy(spectroscopy_const_in):
+    scope_var = (spectroscopy_const_in['alpha_e'] *
+                 spectroscopy_const_in['omega_e'] /
+                 spectroscopy_const_in['b_e'])
+    tmp = spectroscopy_const_in['omega_e'] / 2
+    tmp -= spectroscopy_const_in['omega_xe'] / 2
+    tmp += spectroscopy_const_in['omega_ye'] / 8
+    tmp += spectroscopy_const_in['b_e'] / 4
+    tmp += scope_var / 12 
+    tmp += scope_var**2 / (144 * spectroscopy_const_in['b_e'])
+
+    return tmp #[1/cm] 
+
+# Tropina 10.2514/6.2018-3904
+def probability_of_state(vibrational_number, rotational_number, molecule):
+    translational_temperature = 300
+    vibrational_temperature = 400
+    multiplicity = (2 * rotational_number + 1)
+    vib_energy = vibrational_energy(vibrational_number, molecule)
+    rot_energy = rotational_energy(vibrational_number,
+                                   rotational_number, molecule)
+
+def vibrational_energy(vibrational_number, molecule):
+    spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
+    # Calculates the vibrational energy in units of wave number
+    tmp_vib = vibrational_number + 1/2
+    vib_energy_k = tmp_vib**2
+    vib_energy_k *= -spectroscopy_constants['omega_xe']
+    vib_energy_k += (spectroscopy_constants['omega_e'] * tmp_vib) #[cm^-1]
+    # Convert vibrational energy wave number to rads/sec
+    vib_energy_w = 2 * np.pi * vib_energy_k * s_consts.speed_of_light * 100 #[rads/sec]
+
+    return vib_energy_w * s_consts.hbar #[Joules]
+
+def rotational_energy(vibrational_number, rotational_number, molecule):
+    spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
+    gas_amu_weight  = aero.air_atomic_mass()  # [g/mol] 
+    # Calculates the rotational energy in units of wave number
+    rot_energy_k = (vibrational_number + 1/2)
+    rot_energy_k *= -spectroscopy_constants['alpha_e']
+    rot_energy_k += spectroscopy_constants['b_e']
+    rot_energy_k *= rotational_number
+    rot_energy_k *= (rotational_number + 1) #[cm^-1]
+    # Convert rotational energy wave number to rads/sec
+    rot_energy_w = 2 * np.pi * rot_energy_k * s_consts.speed_of_light * 100 #[rads/sec]
+
+    return rot_energy_w * s_consts.hbar #[Joules]
+
+
+
+
+
+
+
 if __name__ == "__main__":
     gd = Gladstone_Dale()
     gd.update({n: np.round(gd[n] * 1E4, 3) for n in gd.keys()})
@@ -232,9 +263,12 @@ if __name__ == "__main__":
     index = atmospheric_index_of_refraction(altitude) 
     gd_s = atmospheric_gladstoneDaleConstant(altitude) 
 
-    kerl_polarizability(wavelength_nm=633, temperature_K=1000)
-    #kerl_polarizability(wavelength_nm=0.0273, temperature_K=1000) #for N2
-    #kerl_polarizability(wavelength_nm=1.49E-5, temperature_K=1000) #for O2
+    probability_of_state(vibrational_number=1,
+                         rotational_number=1,
+                         molecule='N2')
+
+    kerl_polarizability_temperature(temperature_K=1000, molecule='N2', 
+                                    wavelength_nm=633)
 
 
     # MAKING PLOTS #

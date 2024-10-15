@@ -77,38 +77,78 @@ def parameters_mean_polarizability(molecule='N2'):
     if molecule == 'N2':
         dict_out['groundPolarizability'] = 1.7406 * 1E30 #[m^3]
         dict_out['groundFrequency'] = 2.6049 * 1E16 # [1/s]
-        dict_out['b'] = 1.8 * 1E6 # [1/K]
+        dict_out['b'] = 1.8 * 1E-6 # [1/K]
         #dict_out['c'] = 0.683 * 1E9# [1/K^2]
         dict_out['c'] = 0.0 
     if molecule == 'O2':
         dict_out['groundPolarizability'] = 1.5658 * 1E30 #[m^3]
         dict_out['groundFrequency'] = 2.1801 * 1E16 # [1/s]
-        dict_out['b'] = -2.369 * 1E6 # [1/K]
-        dict_out['c'] = 8.687 * 1E9# [1/K^2]
+        dict_out['b'] = -2.369 * 1E-6 # [1/K]
+        dict_out['c'] = 8.687 * 1E-9# [1/K^2]
     if molecule == 'Air':
         dict_out['groundPolarizability'] = 1.6970 * 1E30 #[m^3]
         dict_out['groundFrequency'] = 2.47044 * 1E16 # [1/s]
-        dict_out['b'] = 10.6 * 1E6 # [1/K]
-        dict_out['c'] = 7.909 * 1E9# [1/K^2]
+        dict_out['b'] = 10.6 * 1E-6 # [1/K]
+        dict_out['c'] = 7.909 * 1E-9# [1/K^2]
 
     return dict_out
 
 def spectroscopy_constants(molecule='N2'):
     # https://doi.org/10.1063/1.2436891
-    dict_out = { }
-    # harmonic vibratonal frequency (omega_e) 
-    # first anharmonicity vibrational constant (omega_e xi_e)
+    # minimun electronic energy T_e [cm^-1]
+    # harmonic frequency (omega_e)  [cm^-1]
+    # first anharmonic correction (omega_e x_e) [cm^-1]
     # (omega_e y_e)
-    # (B_e)
-    # vibration-rotation coupling constant (alpha_e) 
+    # equilibrium rotational constant (B_e)
+    # anharmonic correction to the rotational constant (alpha_e) [cm^-1]
+    # centrifugal distortion constant (D_e) [cm^-1]
+    # binding energy (D_o) [eV]
+    # equilibrium internuclear distance(R_e) [\r{A}] 
+    # ionization potential (IP) [eV]
+
+    dict_out = { }
 
     if molecule == 'N2':
-        dict_out['harmonic'] = 2358.57
-        dict_out['anharmonic'] = 14.34 
-        dict_out[''] = -0.00226
-        dict_out[''] = 1.998241
-        dict_out[''] = 0.017318
+        dict_out['omega_e'] = 2358.57
+        dict_out['omega_xe'] = 14.324
+        dict_out['omega_ye'] = -0.00226
+        dict_out['b_e'] = 1.998241
+        dict_out['alpha_e'] = 0.017318
 
+    if molecule == 'N2+':
+        dict_out['omega_e'] = 2207.0115
+        dict_out['omega_xe'] = 16.0616
+        dict_out['omega_ye'] = -0.04289
+        dict_out['b_e'] = 1.93176
+        dict_out['alpha_e'] = 0.0181
+
+    if molecule == 'NO':
+        dict_out['omega_e'] = 1904.1346
+        dict_out['omega_xe'] = 14.08836
+        dict_out['omega_ye'] = 0.01005
+        dict_out['b_e'] = 1.704885
+        dict_out['alpha_e'] = 0.0175416
+
+    if molecule == 'NO+':
+        dict_out['omega_e'] = 2376.72
+        dict_out['omega_xe'] = 16.255
+        dict_out['omega_ye'] = -0.01562
+        dict_out['b_e'] = 1.997195
+        dict_out['alpha_e'] = 0.018790
+
+    if molecule == 'O2':
+        dict_out['omega_e'] = 1580.161
+        dict_out['omega_xe'] = 11.95127
+        dict_out['omega_ye'] = 0.0458489
+        dict_out['b_e'] = 1.44562
+        dict_out['alpha_e'] = 0.0159305
+
+    if molecule == 'O2+':
+        dict_out['omega_e'] = 1905.892
+        dict_out['omega_xe'] = 16.489
+        dict_out['omega_ye'] = 0.02057
+        dict_out['b_e'] = 1.689824
+        dict_out['alpha_e'] = 0.019363
     return dict_out #wavenumber units  #[cm^-1]
 
 
