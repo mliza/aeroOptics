@@ -78,7 +78,6 @@ def parameters_mean_polarizability(molecule='N2'):
         dict_out['groundPolarizability'] = 1.7406 * 1E30 #[m^3]
         dict_out['groundFrequency'] = 2.6049 * 1E16 # [1/s]
         dict_out['b'] = 1.8 * 1E-6 # [1/K]
-        #dict_out['c'] = 0.683 * 1E9# [1/K^2]
         dict_out['c'] = 0.0 
     if molecule == 'O2':
         dict_out['groundPolarizability'] = 1.5658 * 1E30 #[m^3]
@@ -150,8 +149,3 @@ def spectroscopy_constants(molecule='N2'):
         dict_out['b_e'] = 1.689824
         dict_out['alpha_e'] = 0.019363
     return dict_out #wavenumber units  #[cm^-1]
-
-
-    
-
-

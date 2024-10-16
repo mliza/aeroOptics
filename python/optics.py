@@ -105,22 +105,34 @@ def buldakov_method(T_vib=2280):
     DOI: 10.1002/bbpc.19920960517 
     DOI: 10.1134/BF03355985
 """
+"""
 def kerl_polarizability_temperature(temperature_K=1000, molecule='N2', 
                                     wavelength_nm=633):
-    mean_cost = constants_tables.parameters_mean_polarizability(molecule)
-    angular_frequency = [2 * np.pi * s_consts.speed_of_light /
-                         (wavelength_nm * 1E-9)]
+"""
+def kerl_polarizability_temperature(*args, **kargs):
+    if args:
+        temperature_K = args[0] 
+        molecule = args[1]
+        wavelength_nm = args[2]
 
-    IPython.embed(colors = 'Linux')
-    for i in angular_frequency:
-        for j in temperature_K:
-            tmp = mean_const['c'] * temperature_K**2
-            tmp += mean_const['b'] * temperature_K
-            tmp += 1
-            tmp *= mean_const['groundPolarizability']
-            tmp /= (1-(i / mean_const['groundFrequency'])**2)
+    if kargs:
+        temperature_K = kargs['temperature_K']
+        molecule = kargs['molecule']
+        wavelength_nm = kargs['wavelength_nm']
 
-    IPython.embed(colors = 'Linux')
+    # Check sizes
+    mean_const = constants_tables.parameters_mean_polarizability(molecule)
+    angular_frequency = (2 * np.pi * s_consts.speed_of_light /
+                         (wavelength_nm * 1E-9))
+
+    tmp = mean_const['c'] * temperature_K**2
+    tmp += mean_const['b'] * temperature_K
+    tmp += 1
+    tmp *= mean_const['groundPolarizability']
+    tmp /= (1 - (angular_frequency / mean_const['groundFrequency'])**2)
+
+    return tmp
+
 
         
 
