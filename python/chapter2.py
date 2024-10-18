@@ -43,7 +43,7 @@ def plot_polarizability_T(**kargs):
 
     plt.legend()
     plt.xlabel('Temperature $[K]$', fontsize=fig_config['label_size'])
-    plt.ylabel('Polarizability $[m]$', fontsize=fig_config['label_size'])
+    plt.ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
 
     plt.savefig(os.path.join(output_png_path,
     f'{wavelength_nm}nm_polarizability.png'), format = 'png',

@@ -97,8 +97,99 @@ def optical_path_length(n_solution, distance):
     return OPL 
 
 # Calculate polarizability (uses equation 4 from the paper)
-def buldakov_method(T_vib=2280):
-    a = 2
+def buldakov_polarizability(molecule='N2'):
+    # This will be Inputs
+    vibrational_number = 1
+    rotational_number = 2
+    # Load constants
+    spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
+    derivative_const = constants_tables.polarizability_derivatives(molecule)
+    be_we = spectroscopy_const['b_e'] / spectroscopy_const['omega_e']
+    Y_10 = wavenumber_to_meter(spectroscopy_const['omega_e'])
+    Y_20 = -wavenumber_to_meter(spectroscopy_const['omega_xe'])
+    Y_30 = wavenumber_to_meter(spectroscopy_const['omega_ye']) 
+    rotational_degeneracy = rotational_number * (rotational_number + 1)
+    vibrational_degeneracy = 2 * vibrational_number + 1
+
+    # Split in terms
+    tmp_1 = be_we
+    tmp_1 *= (-3 * Y_10 * derivative_const['first'] +
+             derivative_const['second'])
+    tmp_1 *= vibrational_degeneracy 
+    tmp_1 *= 1/2
+
+    tmp_2 = be_we**2
+    tmp_2 *= derivative_const['first']
+    tmp_2 *= rotational_degeneracy
+    tmp_2 *= 4
+
+    tmp_31a = 7
+    tmp_31a += (15 * vibrational_degeneracy**2) 
+    tmp_31a *= Y_10**3
+    tmp_31a *= -3/8
+
+    tmp_31b = 23
+    tmp_31b += (39 * vibrational_degeneracy**2) 
+    tmp_31b *= Y_20
+    tmp_31b *= Y_10
+    tmp_31b *=  1/4
+
+    tmp_31c = 5
+    tmp_31c += vibrational_degeneracy**2 
+    tmp_31c *= Y_30
+    tmp_31c *= -15/4
+
+    tmp_31 = derivative_const['first'] * (tmp_31a + tmp_31b + tmp_31c)
+
+    tmp_32a = 5
+    tmp_32a += vibrational_degeneracy**2
+    tmp_32a *= Y_20
+    tmp_32a *- -3/4
+
+    tmp_32b = 7
+    tmp_32b += (15 * vibrational_degeneracy**2)
+    tmp_32b *= Y_10**2
+    tmp_32b *= 1/8
+
+    tmp_32 = derivative_const['second'] * (tmp_32a + tmp_32b)
+
+    tmp_33 = 7
+    tmp_33 += (15 * vibrational_degeneracy**2)
+    tmp_33 *= Y_10
+    tmp_33 *= derivative_const['third']
+    tmp_33 *= -1/24
+
+    tmp_3 = (tmp_31 + tmp_32 + tmp_33) * be_we**2
+
+    tmp_41 = 1 - Y_20
+    tmp_41 *= 24
+    tmp_41 += (27 * Y_10 * (1 + Y_10))
+    tmp_41 *= derivative_const['first']
+
+    tmp_42 = (1 + 3 * Y_10)
+    tmp_42 *= derivative_const['second']
+    tmp_42 *= -3
+
+    tmp_43 = 1/8 * derivative_const['third']
+
+    tmp_4 = (tmp_41 + tmp_42 + tmp_43) 
+    tmp_4 *= rotational_degeneracy
+    tmp_4 *= vibrational_degeneracy
+    tmp_4 *= be_we**3
+
+    IPython.embed(colors = 'Linux')
+    return derivative_const['zeroth'] + tmp_1 + tmp_2 + tmp_3 + tmp_4
+
+
+
+
+
+
+    
+
+
+
+
 
 # Calculate polarizability as temperature
 """
@@ -121,7 +212,7 @@ def kerl_polarizability_temperature(*args, **kargs):
         wavelength_nm = kargs['wavelength_nm']
 
     # Check sizes
-    mean_const = constants_tables.parameters_mean_polarizability(molecule)
+    mean_const = constants_tables.kerl_interpolation(molecule)
     angular_frequency = (2 * np.pi * s_consts.speed_of_light /
                          (wavelength_nm * 1E-9))
 
@@ -226,28 +317,53 @@ def zero_point_energy(spectroscopy_const_in):
 
     return tmp #[1/cm] 
 
+def partition_function(temperature_K, vibrational_number,
+                                   rotational_number, molecule):
+    degeneracy = 2 * rotational_number + 1
+    hamiltonian_k = vibrational_energy_k(vibrational_number, molecule)
+    hamiltonian_k += rotational_energy_k(vibrational_number,
+                                   rotational_number, molecule)
+    partition_function = degeneracy * np.exp(
+                                    -wavenumber_to_joules(hamiltonian_k) / 
+                                    (temperature_K * s_consts.k))
+    return partition_function #[ ]
+
+
 # Tropina 10.2514/6.2018-3904
-def probability_of_state(vibrational_number, rotational_number, molecule):
-    translational_temperature = 300
-    vibrational_temperature = 400
-    multiplicity = (2 * rotational_number + 1)
-    vib_energy = vibrational_energy(vibrational_number, molecule)
-    rot_energy = rotational_energy(vibrational_number,
+def probability_of_state(temperature_K, vibrational_number,
+                         rotational_number, molecule):
+
+    numerator = partition_function(temperature_K, vibrational_number,
                                    rotational_number, molecule)
 
-def vibrational_energy(vibrational_number, molecule):
+    denominator = 0.0
+    for v in range(vibrational_number + 1):
+        for j in range(rotational_number + 1):
+            denominator += partition_function(temperature_K, v, j,
+                                                        molecule)
+
+    return numerator / denominator #[ ]
+
+
+
+def tropina_polarizability():
+    electric_charge = s_consts.e #[C]
+    electron_mass = s_consts.m_e #[kg]
+
+
+
+
+def vibrational_energy_k(vibrational_number, molecule):
     spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
     # Calculates the vibrational energy in units of wave number
     tmp_vib = vibrational_number + 1/2
     vib_energy_k = tmp_vib**2
     vib_energy_k *= -spectroscopy_constants['omega_xe']
     vib_energy_k += (spectroscopy_constants['omega_e'] * tmp_vib) #[cm^-1]
-    # Convert vibrational energy wave number to rads/sec
-    vib_energy_w = 2 * np.pi * vib_energy_k * s_consts.speed_of_light * 100 #[rads/sec]
 
-    return vib_energy_w * s_consts.hbar #[Joules]
+    return vib_energy_k 
 
-def rotational_energy(vibrational_number, rotational_number, molecule):
+def rotational_energy_k(vibrational_number, rotational_number, molecule):
     spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
     gas_amu_weight  = aero.air_atomic_mass()  # [g/mol] 
     # Calculates the rotational energy in units of wave number
@@ -256,10 +372,24 @@ def rotational_energy(vibrational_number, rotational_number, molecule):
     rot_energy_k += spectroscopy_constants['b_e']
     rot_energy_k *= rotational_number
     rot_energy_k *= (rotational_number + 1) #[cm^-1]
-    # Convert rotational energy wave number to rads/sec
-    rot_energy_w = 2 * np.pi * rot_energy_k * s_consts.speed_of_light * 100 #[rads/sec]
 
-    return rot_energy_w * s_consts.hbar #[Joules]
+    return rot_energy_k
+
+def tranlational_energy(principal_number_x, principal_number_y,
+                        principal_number_z):
+    A = 5
+
+
+# Kayser units
+def wavenumber_to_electronvolt(wavenumber_cm):
+    return wavenumber_to_joules(wavenumber_cm) / s_consts.eV #[eV]
+
+def wavenumber_to_joules(wavenumber_cm):
+    return wavenumber_cm * s_consts.c * 10**2 * s_consts.h #[J]
+
+def wavenumber_to_meter(wavelength_cm):
+    return wavelength_cm * 100
+
 
 
 
@@ -275,8 +405,9 @@ if __name__ == "__main__":
     index = atmospheric_index_of_refraction(altitude) 
     gd_s = atmospheric_gladstoneDaleConstant(altitude) 
 
-    probability_of_state(vibrational_number=1,
-                         rotational_number=1,
+    buldakov_polarizability(molecule='N2')
+    probability_of_state(temperature_K=1000, vibrational_number=1,
+                         rotational_number=2,
                          molecule='N2')
 
     kerl_polarizability_temperature(temperature_K=1000, molecule='N2', 
