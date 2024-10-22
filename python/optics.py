@@ -100,7 +100,7 @@ def optical_path_length(n_solution, distance):
 def buldakov_polarizability(molecule='N2'):
     # This will be Inputs
     vibrational_number = 1
-    rotational_number = 2
+    rotational_number = 5
     # Load constants
     spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
     derivative_const = constants_tables.polarizability_derivatives(molecule)
@@ -401,17 +401,20 @@ if __name__ == "__main__":
     gd = Gladstone_Dale()
     gd.update({n: np.round(gd[n] * 1E4, 3) for n in gd.keys()})
     altitude = np.linspace(0, 81E3, 1000)
-    dielectric_const_0   = s_consts.epsilon_0 # [F/m] 
-    index = atmospheric_index_of_refraction(altitude) 
-    gd_s = atmospheric_gladstoneDaleConstant(altitude) 
+    dielectric_const_0   = s_consts.epsilon_0 # [F/m]
+    index = atmospheric_index_of_refraction(altitude)
+    gd_s = atmospheric_gladstoneDaleConstant(altitude)
 
-    buldakov_polarizability(molecule='N2')
-    probability_of_state(temperature_K=1000, vibrational_number=1,
-                         rotational_number=2,
-                         molecule='N2')
+    #buldakov_polarizability(molecule='N2')
 
-    kerl_polarizability_temperature(temperature_K=1000, molecule='N2', 
-                                    wavelength_nm=633)
+    prob_states = probability_of_state(temperature_K=1000,
+                                        vibrational_number=2,
+                                        rotational_number=3,
+                                        molecule='N2')
+
+    kerl_pola = kerl_polarizability_temperature(temperature_K=1000,
+                                                molecule='N2',
+                                                wavelength_nm=633)
 
 
     # MAKING PLOTS #
