@@ -46,7 +46,7 @@ def plot_polarizability_T(**kargs):
     plt.ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
 
     plt.savefig(os.path.join(output_png_path,
-    f'{wavelength_nm}nm_polarizability.png'), format = 'png',
+    f'polKerl_wave{wavelength_nm}.png'), format = 'png',
     bbox_inches='tight', dpi=fig_config['dpi_size']) 
     plt.close()
 
@@ -63,7 +63,7 @@ def plot_probability_of_state_vibrational_T(**kargs):
         plt.semilogy(vibrational_number, prob_state_dict[t], 'o-', 
                     linewidth=fig_config['line_width'],
                     label=f'{legend_name}, T = {t} $[K]$')
-    plt.xticks(range(np.min(vibrational_number), np.max(vibrational_number)))
+    plt.xticks(range(np.min(vibrational_number), (np.max(vibrational_number) + 1)))
     plt.legend()
     plt.xlabel('Vibrational number $[\;]$', fontsize=fig_config['label_size'])
     plt.ylabel('Probability of state $[\;]$', fontsize=fig_config['label_size'])
@@ -73,19 +73,39 @@ def plot_probability_of_state_vibrational_T(**kargs):
     bbox_inches='tight', dpi=fig_config['dpi_size']) 
     plt.close()
 
+def plot_polarizability_buldakov(**kargs):
+    fig_config = kargs['fig_config']
+    pol_dict = kargs['pol_dict']
+    vibrational_number = kargs['vibrational_number']
+    fig_name_out = kargs['fig_name_out']
+    output_png_path = kargs['output_path']
+    for j in pol_dict.keys():
+        plt.plot(vibrational_number, pol_dict[j], 
+                    linewidth=fig_config['line_width'],
+                    label=f'J = {j}')
+    plt.xticks(range(np.min(vibrational_number), (np.max(vibrational_number) + 1)))
+    plt.legend()
+    plt.xlabel('Vibrational number $[\;]$', fontsize=fig_config['label_size'])
+    plt.ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
+
+    plt.savefig(os.path.join(output_png_path,
+    f'{fig_name_out}'), format = 'png',
+    bbox_inches='tight', dpi=fig_config['dpi_size']) 
+    plt.close()
+
+
 def plot_partition_function_vibrational_T(**kargs):
     fig_config = kargs['fig_config']
-    IPython.embed(colors = 'Linux')
     part_funct_dict = kargs['part_func_dict']
     vibrational_number = kargs['vibrational_number']
-    legend_name = kargs['legend_name']
+    legend_name = kargs['legend_name'] 
     fig_name_out = kargs['fig_name_out']
     output_png_path = kargs['output_path']
     for t in part_funct_dict.keys():
-        plt.plot(vibrational_number, prob_state_dict[t], 'o-', 
+        plt.semilogy(vibrational_number, prob_state_dict[t], 'o-', 
                     linewidth=fig_config['line_width'],
                     label=f'{legend_name}, T = {t} $[K]$')
-    plt.xticks(range(np.min(vibrational_number), np.max(vibrational_number)))
+    plt.xticks(range(np.min(vibrational_number), (np.max(vibrational_number) + 1)))
     plt.legend()
     plt.xlabel('Vibrational number $[\;]$', fontsize=fig_config['label_size'])
     plt.ylabel('Partition function $[\;]$', fontsize=fig_config['label_size'])
@@ -112,19 +132,22 @@ if __name__ == "__main__":
 
 # Probability of State at equilibrium
     temperature_K = ['500', '1000', '2000']
-    vibrational_number = np.arange(0, 21)
-    molecule='N2'
-    rotational_number = 1
+    vibrational_num_max = 21
+    vibrational_number = np.arange(0, vibrational_num_max)
+    molecule='O2'
+    rotational_number = 10
     fig_name_prob = f'probState{molecule}_J{rotational_number}.png'
     fig_name_part = f'partFunction{molecule}_J{rotational_number}.png'
+    fig_name_pol  = f'polBuldakov{molecule}.png'
     legend_name = f'$J$ = {rotational_number}'
 
     prob_state_dict = { }
     partition_function_dict = { }
+    buldakov_polarizability = { }
 
     for t in temperature_K:
-        prob_state_dict[t] = np.zeros(21)
-        partition_function_dict[t] = np.zeros(21)
+        prob_state_dict[t] = np.zeros(vibrational_num_max)
+        partition_function_dict[t] = np.zeros(vibrational_num_max)
 
     for t in temperature_K:
         for v in vibrational_number:
@@ -153,6 +176,23 @@ if __name__ == "__main__":
                             vibrational_number=vibrational_number,
                             legend_name=legend_name,
                             fig_name_out=fig_name_prob,
+                            fig_config=fig_config,
+                            output_path='tmp')
+
+    rotational_number = ['1', '10', '20'] 
+    legend_name = f'$J$ = {rotational_number}'
+    for j in rotational_number:
+        buldakov_polarizability[j] = np.zeros(vibrational_num_max)
+        for v in vibrational_number:
+            # Buldakov Polarizability (function of rotational and vibrational numbers)
+            buldakov_polarizability[j][v] = optics.buldakov_polarizability(
+                                        vibrational_number=v, 
+                                        rotational_number=int(j),
+                                        molecule=f'{molecule}')
+
+    plot_polarizability_buldakov(pol_dict=buldakov_polarizability,
+                            vibrational_number=vibrational_number,
+                            fig_name_out=fig_name_pol,
                             fig_config=fig_config,
                             output_path='tmp')
 

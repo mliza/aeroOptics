@@ -97,23 +97,30 @@ def optical_path_length(n_solution, distance):
     return OPL 
 
 # Calculate polarizability (uses equation 4 from the paper)
-def buldakov_polarizability(molecule='N2'):
-    # This will be Inputs
-    vibrational_number = 1
-    rotational_number = 5
+def buldakov_polarizability(vibrational_number=2, rotational_number=3,
+                            molecule='N2'):
     # Load constants
     spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
     derivative_const = constants_tables.polarizability_derivatives(molecule)
     be_we = spectroscopy_const['b_e'] / spectroscopy_const['omega_e']
-    Y_10 = wavenumber_to_meter(spectroscopy_const['omega_e'])
-    Y_20 = -wavenumber_to_meter(spectroscopy_const['omega_xe'])
-    Y_30 = wavenumber_to_meter(spectroscopy_const['omega_ye']) 
+    a_0 = (spectroscopy_const['omega_e']**2 / 
+            (4 * spectroscopy_const['b_e']))
+    a_1 = spectroscopy_const['omega_e']
+    a_2 = -spectroscopy_const['omega_xe']
+    a_3 = spectroscopy_const['omega_ye'] 
+
+    a_1 = -(spectroscopy_const['alpha_e'] *
+            spectroscopy_const['omega_e'] / (6 *
+            spectroscopy_const['b_e']**2) - 1)
+    a_2 =(5/4 * a_1**2 - 2/3 * (spectroscopy_const['omega_xe'] /
+                                 spectroscopy_const['b_e']))
+    a_3 = a_1**3 * 0.35
     rotational_degeneracy = rotational_number * (rotational_number + 1)
     vibrational_degeneracy = 2 * vibrational_number + 1
 
     # Split in terms
     tmp_1 = be_we
-    tmp_1 *= (-3 * Y_10 * derivative_const['first'] +
+    tmp_1 *= (-3 * a_1 * derivative_const['first'] +
              derivative_const['second'])
     tmp_1 *= vibrational_degeneracy 
     tmp_1 *= 1/2
@@ -125,48 +132,48 @@ def buldakov_polarizability(molecule='N2'):
 
     tmp_31a = 7
     tmp_31a += (15 * vibrational_degeneracy**2) 
-    tmp_31a *= Y_10**3
+    tmp_31a *= a_1**3
     tmp_31a *= -3/8
 
     tmp_31b = 23
     tmp_31b += (39 * vibrational_degeneracy**2) 
-    tmp_31b *= Y_20
-    tmp_31b *= Y_10
+    tmp_31b *= a_2
+    tmp_31b *= a_1
     tmp_31b *=  1/4
 
     tmp_31c = 5
     tmp_31c += vibrational_degeneracy**2 
-    tmp_31c *= Y_30
+    tmp_31c *= a_3
     tmp_31c *= -15/4
 
     tmp_31 = derivative_const['first'] * (tmp_31a + tmp_31b + tmp_31c)
 
     tmp_32a = 5
     tmp_32a += vibrational_degeneracy**2
-    tmp_32a *= Y_20
+    tmp_32a *= a_2
     tmp_32a *- -3/4
 
     tmp_32b = 7
     tmp_32b += (15 * vibrational_degeneracy**2)
-    tmp_32b *= Y_10**2
+    tmp_32b *= a_1**2
     tmp_32b *= 1/8
 
     tmp_32 = derivative_const['second'] * (tmp_32a + tmp_32b)
 
     tmp_33 = 7
     tmp_33 += (15 * vibrational_degeneracy**2)
-    tmp_33 *= Y_10
+    tmp_33 *= a_1
     tmp_33 *= derivative_const['third']
     tmp_33 *= -1/24
 
     tmp_3 = (tmp_31 + tmp_32 + tmp_33) * be_we**2
 
-    tmp_41 = 1 - Y_20
+    tmp_41 = 1 - a_2
     tmp_41 *= 24
-    tmp_41 += (27 * Y_10 * (1 + Y_10))
+    tmp_41 += (27 * a_1 * (1 + a_1))
     tmp_41 *= derivative_const['first']
 
-    tmp_42 = (1 + 3 * Y_10)
+    tmp_42 = (1 + 3 * a_1)
     tmp_42 *= derivative_const['second']
     tmp_42 *= -3
 
@@ -177,18 +184,7 @@ def buldakov_polarizability(molecule='N2'):
     tmp_4 *= vibrational_degeneracy
     tmp_4 *= be_we**3
 
-    IPython.embed(colors = 'Linux')
     return derivative_const['zeroth'] + tmp_1 + tmp_2 + tmp_3 + tmp_4
-
-
-
-
-
-
-    
-
-
-
 
 
 # Calculate polarizability as temperature
@@ -351,8 +347,6 @@ def tropina_polarizability():
     electron_mass = s_consts.m_e #[kg]
 
 
-
-
 def vibrational_energy_k(vibrational_number, molecule):
     spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
     # Calculates the vibrational energy in units of wave number
@@ -405,7 +399,8 @@ if __name__ == "__main__":
     index = atmospheric_index_of_refraction(altitude)
     gd_s = atmospheric_gladstoneDaleConstant(altitude)
 
-    #buldakov_polarizability(molecule='N2')
+    tmp = buldakov_polarizability(molecule='N2')
+    print(tmp)
 
     prob_states = probability_of_state(temperature_K=1000,
                                         vibrational_number=2,
