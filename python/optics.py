@@ -102,19 +102,12 @@ def buldakov_polarizability(vibrational_number=2, rotational_number=3,
     # Load constants
     spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
     derivative_const = constants_tables.polarizability_derivatives(molecule)
-    be_we = spectroscopy_const['b_e'] / spectroscopy_const['omega_e']
-    a_0 = (spectroscopy_const['omega_e']**2 / 
-            (4 * spectroscopy_const['b_e']))
-    a_1 = spectroscopy_const['omega_e']
-    a_2 = -spectroscopy_const['omega_xe']
-    a_3 = spectroscopy_const['omega_ye'] 
+    be_we = spectroscopy_const['B_e'] / spectroscopy_const['omega_e']
 
-    a_1 = -(spectroscopy_const['alpha_e'] *
-            spectroscopy_const['omega_e'] / (6 *
-            spectroscopy_const['b_e']**2) - 1)
-    a_2 =(5/4 * a_1**2 - 2/3 * (spectroscopy_const['omega_xe'] /
-                                 spectroscopy_const['b_e']))
-    a_3 = a_1**3 * 0.35
+    # Dunham potential energy constants
+    (a_0, a_1, a_2) = potential_dunham_coef_012(molecule)
+    a_3 = potential_dunham_coeff_m(a_1, a_2, 3)
+
     rotational_degeneracy = rotational_number * (rotational_number + 1)
     vibrational_degeneracy = 2 * vibrational_number + 1
 
@@ -303,13 +296,13 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3
 def zero_point_energy(spectroscopy_const_in):
     scope_var = (spectroscopy_const_in['alpha_e'] *
                  spectroscopy_const_in['omega_e'] /
-                 spectroscopy_const_in['b_e'])
+                 spectroscopy_const_in['B_e'])
     tmp = spectroscopy_const_in['omega_e'] / 2
     tmp -= spectroscopy_const_in['omega_xe'] / 2
     tmp += spectroscopy_const_in['omega_ye'] / 8
-    tmp += spectroscopy_const_in['b_e'] / 4
+    tmp += spectroscopy_const_in['B_e'] / 4
     tmp += scope_var / 12 
-    tmp += scope_var**2 / (144 * spectroscopy_const_in['b_e'])
+    tmp += scope_var**2 / (144 * spectroscopy_const_in['B_e'])
 
     return tmp #[1/cm] 
 
@@ -341,6 +334,30 @@ def probability_of_state(temperature_K, vibrational_number,
     return numerator / denominator #[ ]
 
 
+#TODO: CITE ME
+def potential_dunham_coef_012(molecule='N2'):
+    spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
+    a_0 = (spectroscopy_const['omega_e']**2 /
+           (4 * spectroscopy_const['B_e']))
+    a_1 = -(spectroscopy_const['alpha_e'] * spectroscopy_const['omega_e'] /
+               (6 * spectroscopy_const['B_e']**2) + 1)
+    a_2 = ((5/4) * a_1**2 - (2/3) *
+           (spectroscopy_const['omega_xe'] / spectroscopy_const['B_e'])) 
+    return (a_0, a_1, a_2)
+
+
+
+#TODO: CITE ME
+def potential_dunham_coeff_m(a_1, a_2, m):
+    tmp = (12 / a_1)**(m - 2)
+    tmp *= (2**(m + 1) - 1)
+    tmp *= (a_2 / 7)**(m - 1)
+
+    for i in range(m - 2):
+        tmp *= (1 / (m + 2 - i))
+
+    return tmp
+
 
 def tropina_polarizability():
     electric_charge = s_consts.e #[C]
@@ -363,7 +380,7 @@ def rotational_energy_k(vibrational_number, rotational_number, molecule):
     # Calculates the rotational energy in units of wave number
     rot_energy_k = (vibrational_number + 1/2)
     rot_energy_k *= -spectroscopy_constants['alpha_e']
-    rot_energy_k += spectroscopy_constants['b_e']
+    rot_energy_k += spectroscopy_constants['B_e']
     rot_energy_k *= rotational_number
     rot_energy_k *= (rotational_number + 1) #[cm^-1]
 

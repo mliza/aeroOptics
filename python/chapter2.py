@@ -197,6 +197,20 @@ if __name__ == "__main__":
                             output_path='tmp')
 
 
+    
+    # FIX ME 
+    """
+    vibrational_num_max = 21
+    vibrational_number = np.arange(0, vibrational_num_max)
+    rotational_number = np.arange(0, vibrational_num_max)
+    buldakov_polarizability_2D = np.zeros(rotational_number)
+    for v, j in zip(vibrational_number, rotational_number):
+        buldakov_polarizability_2D[v] = optics.buldakov_polarizability(
+                                        vibrational_number=v, 
+                                        rotational_number=j,
+                                        molecule=f'{molecule}')
+    IPython.embed(colors = "Linux")
+    """
 
 # Kerl Polarizability (function of temperature)
     temperature_K = np.linspace(0, 2000, 100)
