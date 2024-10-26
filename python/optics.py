@@ -416,17 +416,30 @@ if __name__ == "__main__":
     index = atmospheric_index_of_refraction(altitude)
     gd_s = atmospheric_gladstoneDaleConstant(altitude)
 
-    tmp = buldakov_polarizability(molecule='N2')
-    print(tmp)
+    ## Inputs ##
+    temperature_K = 2000
+    vibrational_number = 2
+    rotational_number = 3
+    molecule = 'N2'
 
-    prob_states = probability_of_state(temperature_K=1000,
-                                        vibrational_number=2,
-                                        rotational_number=3,
-                                        molecule='N2')
+    prob_states = probability_of_state(temperature_K=temperature_K,
+                                        vibrational_number=vibrational_number,
+                                        rotational_number=rotational_number,
+                                        molecule=molecule)
 
-    kerl_pola = kerl_polarizability_temperature(temperature_K=1000,
-                                                molecule='N2',
+    kerl_pola = kerl_polarizability_temperature(temperature_K=temperature_K,
+                                                molecule=molecule,
                                                 wavelength_nm=633)
+
+    buldakov_pola = buldakov_polarizability(vibrational_number=vibrational_number,
+                                            rotational_number=rotational_number,
+                                            molecule=molecule)
+
+    part_fuct = partition_function(temperature_K=temperature_K, 
+                                   vibrational_number=vibrational_number,
+                                   rotational_number=rotational_number, 
+                                   molecule=molecule)
+    IPython.embed(colors ='Linux')
 
 
     # MAKING PLOTS #

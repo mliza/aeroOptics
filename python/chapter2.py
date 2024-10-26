@@ -14,6 +14,7 @@ import sys
 import pickle
 import IPython
 import scipy.stats
+from matplotlib import cm
 import matplotlib
 import numpy as np
 import pandas as pd
@@ -46,7 +47,7 @@ def plot_polarizability_T(**kargs):
     plt.ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
 
     plt.savefig(os.path.join(output_png_path,
-    f'polKerl_wave{wavelength_nm}.png'), format = 'png',
+    f'polKerl_{wavelength_nm}nm.png'), format = 'png',
     bbox_inches='tight', dpi=fig_config['dpi_size']) 
     plt.close()
 
@@ -115,6 +116,40 @@ def plot_partition_function_vibrational_T(**kargs):
     bbox_inches='tight', dpi=fig_config['dpi_size']) 
     plt.close()
 
+def plot_polarizability_buldakov_surface(**kargs):
+    fig_config = kargs['fig_config']
+    vib_mesh = kargs['x_mesh']
+    rot_mesh = kargs['y_mesh']
+    fig_name_out = kargs['fig_name_out']
+    output_png_path = kargs['output_path']
+    buldakov_polarizability_2D = kargs['z_func']
+    legend_name = kargs['legend_name']
+
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(7, 6))
+    ax.view_init(elev=17, azim=-125, roll=0.0)
+    surf = ax.plot_surface(vib_mesh, rot_mesh,
+                           buldakov_polarizability_2D, label=f'{legend_name}',
+                           cmap='plasma', linewidth=0, antialiased=False)
+    """
+    ax.contourf(vib_mesh, rot_mesh, buldakov_polarizability_2D,
+                zdir='z', offset=1.5E30, cmap='plasma')
+    """
+    fig.colorbar(surf, shrink=0.5, aspect=10, pad=0.07)
+    ax.set_xticklabels(ax.get_xticks().astype(int))
+    ax.set_yticklabels(ax.get_yticks().astype(int))
+    #ax.set_zticks([])
+    ax.set_xlabel('Vibrational number $[\;]$', fontsize=fig_config['label_size'])
+    ax.set_ylabel('Rotational number $[\;]$', fontsize=fig_config['label_size'])
+    ax.set_zlabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
+    ax.grid(False)
+    #ax.legend()
+
+    plt.savefig(os.path.join(output_png_path,
+    f'{fig_name_out}'), format = 'png',
+    dpi=fig_config['dpi_size'], pad_inches=0.01) 
+    #bbox_inches='tight', dpi=fig_config['dpi_size'], pad_ines=0) 
+    plt.close()
+
 
 if __name__ == "__main__":
 
@@ -133,13 +168,13 @@ if __name__ == "__main__":
 # Probability of State at equilibrium
     temperature_K = ['500', '1000', '2000']
     vibrational_num_max = 21
+    rotational_num_max = 30
     vibrational_number = np.arange(0, vibrational_num_max)
     molecule='O2'
-    rotational_number = 10
-    fig_name_prob = f'probState{molecule}_J{rotational_number}.png'
-    fig_name_part = f'partFunction{molecule}_J{rotational_number}.png'
+    fig_name_prob = f'probState{molecule}_J{rotational_num_max}.png'
+    fig_name_part = f'partFunction{molecule}_J{rotational_num_max}.png'
     fig_name_pol  = f'polBuldakov{molecule}.png'
-    legend_name = f'$J$ = {rotational_number}'
+    legend_name = f'$J$ = {rotational_num_max}'
 
     prob_state_dict = { }
     partition_function_dict = { }
@@ -154,13 +189,13 @@ if __name__ == "__main__":
             prob_state_dict[t][v] = optics.probability_of_state(
                                     temperature_K=int(t),
                                     vibrational_number=v,
-                                    rotational_number=rotational_number,
+                                    rotational_number=rotational_num_max,
                                     molecule=f'{molecule}')
 
             partition_function_dict[t][v] = optics.partition_function(
                                     temperature_K=int(t),
                                     vibrational_number=v,
-                                    rotational_number=rotational_number,
+                                    rotational_number=rotational_num_max,
                                     molecule=f'{molecule}')
 
     plot_partition_function_vibrational_T(
@@ -198,19 +233,28 @@ if __name__ == "__main__":
 
 
     
-    # FIX ME 
-    """
-    vibrational_num_max = 21
-    vibrational_number = np.arange(0, vibrational_num_max)
-    rotational_number = np.arange(0, vibrational_num_max)
-    buldakov_polarizability_2D = np.zeros(rotational_number)
-    for v, j in zip(vibrational_number, rotational_number):
-        buldakov_polarizability_2D[v] = optics.buldakov_polarizability(
+    # Polarizability Buldakov function of rotational and vibrational
+    vibrational_numbers = np.arange(0, vibrational_num_max)
+    rotational_numbers = np.arange(0, rotational_num_max)
+    vib_mesh, rot_mesh = np.meshgrid(vibrational_numbers, rotational_numbers)
+    buldakov_polarizability_2D = np.zeros([rotational_num_max,
+                                           vibrational_num_max])
+    fig_name_out = f'surfacePolBuldakov{molecule}.png'
+    for v in vibrational_numbers:
+        for j in rotational_numbers:
+            buldakov_polarizability_2D[j][v] = optics.buldakov_polarizability(
                                         vibrational_number=v, 
                                         rotational_number=j,
                                         molecule=f'{molecule}')
-    IPython.embed(colors = "Linux")
-    """
+
+    plot_polarizability_buldakov_surface(x_mesh=vib_mesh,
+                                         y_mesh=rot_mesh,
+                                         z_func=buldakov_polarizability_2D,
+                                         fig_name_out=fig_name_out,
+                                         fig_config=fig_config,
+                                         legend_name=f'{molecule}',
+                                         output_path='tmp')
+
 
 # Kerl Polarizability (function of temperature)
     temperature_K = np.linspace(0, 2000, 100)
