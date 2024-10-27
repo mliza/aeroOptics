@@ -33,17 +33,10 @@ def gas_density(density_dict): # density_dict [kg/m^3]
     gas_density     = { }
     
     for i in density_dict: 
-        strip_key = i.strip('+') # remove ion names
         gas_density[i] = (density_dict[i] * 10**3 * 
                                avogadro_number /
-                               gas_amu_weight[strip_key]) # [particles/m^3] 
+                               gas_amu_weight[i]) # [particles/m^3] 
 
-    # Sum all gas density values 
-    '''
-    gas_density['total'] = 0.0
-    for gas_density_val in gas_density.values():
-        gas_density['total'] += gas_density_val
-    '''
     return gas_density #[particles/m^3] 
 
 def index_of_refraction(gas_density_dict):
@@ -235,7 +228,6 @@ def atmospheric_gladstoneDaleConstant(altitude=0.0, gas_composition_dict=None):
     density          = atmospheric_prop.density * 1E3   #[g/m3]
     num_density      = atmospheric_prop.number_density  #[particles/m3]
     gladstone_const  = Gladstone_Dale()                 #[m3/kg]
-    atomic_mass      = aero.air_atomic_mass()           #[g/mol]
     avogadro_number  = s_consts.N_A                     #[particles/mol]
 
     if gas_composition_dict == None:
@@ -248,10 +240,8 @@ def atmospheric_gladstoneDaleConstant(altitude=0.0, gas_composition_dict=None):
 
     tmp = 0
     for i in gas_composition_dict.keys():
-        #tmp += gas_composition_dict[i] * atomic_mass[i] * gladstone_const[i]
         tmp += gas_composition_dict[i] * gladstone_const[i] 
 
-    #return tmp * num_density / (density * avogadro_number) #[m3/kg]
     return tmp 
 
 
@@ -269,9 +259,8 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3
     # Calculate Gladstone dale
     gladstone_dale_const = { }
     for i in pol_consts:
-        strip_key = i.strip('+') # remove ion names
         gladstone_dale_const[i] = ( pol_consts[i] / (2 * dielectric_const) * 
-                (avogadro_number / gas_amu_weight[strip_key]) * 1E3 ) #[m3/kg]
+                (avogadro_number / gas_amu_weight[i]) * 1E3 ) #[m3/kg]
 
     gladstone_dale_dict = { }
     if not gas_density_dict:
@@ -412,19 +401,15 @@ if __name__ == "__main__":
     index = atmospheric_index_of_refraction(altitude)
     gd_s = atmospheric_gladstoneDaleConstant(altitude)
 
-    """
-    (a_0, a_1, a_2) = potential_dunham_coef_012(molecule='O2')
-    a_3 = potential_dunham_coeff_m(a_1, a_2, 3)
-    print(f'a_0 = {a_0:.4}\na_1 = {a_1:.4}\na_2 = {a_2:.4}\na_3 = {a_3:.4}')
-    """
-
-
-
     ## Inputs ##
     temperature_K = 2000
     vibrational_number = 2
     rotational_number = 3
     molecule = 'N2'
+
+    (a_0, a_1, a_2) = potential_dunham_coef_012(molecule='O2')
+    a_3 = potential_dunham_coeff_m(a_1, a_2, 3)
+    #print(f'a_0 = {a_0:.4}\na_1 = {a_1:.4}\na_2 = {a_2:.4}\na_3 = {a_3:.4}')
 
     prob_states = probability_of_state(temperature_K=temperature_K,
                                         vibrational_number=vibrational_number,
