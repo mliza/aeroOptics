@@ -185,10 +185,6 @@ def buldakov_polarizability(vibrational_number=2, rotational_number=3,
     DOI: 10.1002/bbpc.19920960517 
     DOI: 10.1134/BF03355985
 """
-"""
-def kerl_polarizability_temperature(temperature_K=1000, molecule='N2', 
-                                    wavelength_nm=633):
-"""
 def kerl_polarizability_temperature(*args, **kargs):
     if args:
         temperature_K = args[0] 
@@ -416,6 +412,14 @@ if __name__ == "__main__":
     index = atmospheric_index_of_refraction(altitude)
     gd_s = atmospheric_gladstoneDaleConstant(altitude)
 
+    """
+    (a_0, a_1, a_2) = potential_dunham_coef_012(molecule='O2')
+    a_3 = potential_dunham_coeff_m(a_1, a_2, 3)
+    print(f'a_0 = {a_0:.4}\na_1 = {a_1:.4}\na_2 = {a_2:.4}\na_3 = {a_3:.4}')
+    """
+
+
+
     ## Inputs ##
     temperature_K = 2000
     vibrational_number = 2
@@ -439,7 +443,7 @@ if __name__ == "__main__":
                                    vibrational_number=vibrational_number,
                                    rotational_number=rotational_number, 
                                    molecule=molecule)
-    IPython.embed(colors ='Linux')
+    #IPython.embed(colors ='Linux')
 
 
     # MAKING PLOTS #

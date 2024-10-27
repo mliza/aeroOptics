@@ -191,7 +191,7 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         plt.semilogx(tmp['temperature']['time'],
                      tmp['gladstone_total'] * 1E4,
                      linewidth=fig_config['line_width'],
-                     label='Equilibrium')
+                     label='Frozen')
         plt.semilogx(tmp['temperature']['time'],
                      tmp['gladstone_species']['gladstone_dale'] * 1E4,
                      linewidth=fig_config['line_width'],
@@ -356,7 +356,7 @@ def optical_properties(data_in_path, files_in, output_png_path, fig_config, cut_
         gd_const = optics.Gladstone_Dale(density_dict)
         refraction_index = optics.index_of_refraction(density_dict)
 
-        # Gladstone-Dale constant in equilibrium
+        # Gladstone-Dale constant frozen 
         tot_density = sum(density_dict.values())[0]
 
         # Calculate mass fraction at the initialization 
