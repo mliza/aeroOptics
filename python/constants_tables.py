@@ -107,45 +107,64 @@ def spectroscopy_constants(molecule='N2'):
 
     dict_out = { }
 
-    if molecule == 'N2':
-        dict_out['omega_e'] = 2358.57
-        dict_out['omega_xe'] = 14.324
-        dict_out['omega_ye'] = -0.00226
-        dict_out['B_e'] = 1.998241
-        dict_out['alpha_e'] = 0.017318
-
-    if molecule == 'N2+':
-        dict_out['omega_e'] = 2207.0115
-        dict_out['omega_xe'] = 16.0616
-        dict_out['omega_ye'] = -0.04289
-        dict_out['B_e'] = 1.93176
-        dict_out['alpha_e'] = 0.0181
-
-    if molecule == 'NO':
-        dict_out['omega_e'] = 1904.1346
-        dict_out['omega_xe'] = 14.08836
-        dict_out['omega_ye'] = 0.01005
-        dict_out['B_e'] = 1.704885
-        dict_out['alpha_e'] = 0.0175416
-
+    #https://webbook.nist.gov/cgi/cbook.cgi?Name=NO%2B&Units=SI&cDI=on
     if molecule == 'NO+':
         dict_out['omega_e'] = 2376.72
         dict_out['omega_xe'] = 16.255
         dict_out['omega_ye'] = -0.01562
         dict_out['B_e'] = 1.997195
         dict_out['alpha_e'] = 0.018790
+        dict_out['D_e'] = 6.64E-6
+        dict_out['r_e'] = 1.06322E-10 #[m] 
 
-    if molecule == 'O2':
-        dict_out['omega_e'] = 1580.161
-        dict_out['omega_xe'] = 11.95127
-        dict_out['omega_ye'] = 0.0458489
-        dict_out['B_e'] = 1.44562
-        dict_out['alpha_e'] = 0.0159305
+    #https://webbook.nist.gov/cgi/cbook.cgi?Name=N2%2B&Units=SI&cDI=on
+    if molecule == 'N2+':
+        dict_out['omega_e'] = 2207.0115
+        dict_out['omega_xe'] = 16.0616
+        dict_out['omega_ye'] = -0.04289
+        dict_out['B_e'] = 1.93176
+        dict_out['alpha_e'] = 0.0181
+        dict_out['D_e'] = 6.10E-6
+        dict_out['r_e'] = 1.11642E-10 
 
+    #https://webbook.nist.gov/cgi/cbook.cgi?Name=O2%2B&Units=SI&cDI=on
     if molecule == 'O2+':
         dict_out['omega_e'] = 1905.892
         dict_out['omega_xe'] = 16.489
         dict_out['omega_ye'] = 0.02057
         dict_out['B_e'] = 1.689824
         dict_out['alpha_e'] = 0.019363
+        dict_out['D_e'] = 5.32E-6
+        dict_out['r_e'] = 1.1164E-10 
+
+    #https://webbook.nist.gov/cgi/cbook.cgi?Name=NO&Units=SI&cDI=on
+    if molecule == 'NO':
+        dict_out['omega_e'] = 1904.1346
+        dict_out['omega_xe'] = 14.08836
+        dict_out['omega_ye'] = 0.01005
+        dict_out['B_e'] = 1.704885
+        dict_out['alpha_e'] = 0.0175416
+        dict_out['D_e'] = 0.54E-6 
+        dict_out['r_e'] = 1.15077E-10 
+
+    #https://webbook.nist.gov/cgi/cbook.cgi?Name=N2&Units=SI&cDI=on
+    if molecule == 'N2':
+        dict_out['omega_e'] = 2358.57
+        dict_out['omega_xe'] = 14.324
+        dict_out['omega_ye'] = -0.00226
+        dict_out['B_e'] = 1.998241
+        dict_out['alpha_e'] = 0.017318
+        dict_out['D_e'] = 5.9E-6
+        dict_out['r_e'] = 1.2126E-10 
+
+    #https://webbook.nist.gov/cgi/cbook.cgi?Name=O2&Units=SI&cDI=on
+    if molecule == 'O2':
+        dict_out['omega_e'] = 1580.161
+        dict_out['omega_xe'] = 11.95127
+        dict_out['omega_ye'] = 0.0458489
+        dict_out['B_e'] = 1.44562
+        dict_out['alpha_e'] = 0.0159305
+        dict_out['D_e'] = 4.839E-6 
+        dict_out['r_e'] = 1.20752E-10 
+
     return dict_out #wavenumber units  #[cm^-1]
