@@ -428,7 +428,7 @@ if __name__ == "__main__":
                                    vibrational_number=vibrational_number,
                                    rotational_number=rotational_number, 
                                    molecule=molecule)
-    #IPython.embed(colors ='Linux')
+    IPython.embed(colors ='Linux')
 
 
     # MAKING PLOTS #

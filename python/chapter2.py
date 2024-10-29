@@ -256,6 +256,35 @@ if __name__ == "__main__":
                                          output_path='tmp')
 
 
+    temperature_K_max = 2000
+    vibrational_number = np.arange(0, vibrational_num_max)
+    temperature_K = np.arange(100, 2550, 50)
+    buldakov_expectation_value = np.zeros([vibrational_num_max])
+
+    prob_state = np.zeros([vibrational_num_max, np.shape(temperature_K)[0]])
+    vib_mesh, temp_mesh = np.meshgrid(temperature_K, vibrational_number)
+    for v in vibrational_numbers: 
+        buldakov_expectation_value[v] = optics.buldakov_polarizability(
+                                        vibrational_number=v, 
+                                        rotational_number=rotational_num_max,
+                                        molecule=f'{molecule}')
+        for indx, val in enumerate(temperature_K):
+            prob_state[v][indx] = optics.probability_of_state(
+                                    temperature_K=val,
+                                    vibrational_number=v,
+                                    rotational_number=rotational_num_max,
+                                    molecule=f'{molecule}')
+    np.expand_dims(buldakov_expectation_value,1)
+    tot_pol = prob_state.transpose() * buldakov_expectation_value
+
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(7, 6))
+    ax.view_init(elev=17, azim=-125, roll=0.0)
+    surf = ax.plot_surface(vib_mesh, temp_mesh,
+                           tot_pol.transpose(), #label=f'{legend_name}',
+                           cmap='plasma', linewidth=0, antialiased=False)
+    plt.show()
+
+
 # Kerl Polarizability (function of temperature)
     temperature_K = np.linspace(0, 2000, 100)
     wavelength_nm = 633
