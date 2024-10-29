@@ -291,12 +291,30 @@ def zero_point_energy(spectroscopy_const_in):
 
     return tmp #[1/cm] 
 
+def vibrational_partition_function(vibrational_number, temperature_K, 
+                                   molecule):
+    thermal_beta = 1 / (s_consts.h * temperature_K)
+    z_vib = 0.0
+    for v in range(vibrational_number + 1):
+        z_vib += np.exp(-thermal_beta * 
+                wavenumber_to_joules(vibrational_energy_k(v, molecule)))
+    return z_vib
+
+def rotational_partition_function(rotational_number, temperature_K, molecule):
+    thermal_beta = 1 / (s_consts.h * temperature_K)
+    z_rot = 0.0
+    for j in range(rotational_number + 1):
+        z_rot += np.exp(-thermal_beta * 
+                  wavenumber_to_joules(rotational_energy_k(j, molecule)))
+    return z_rot
+        
+
+
 def partition_function(temperature_K, vibrational_number,
                                    rotational_number, molecule):
     degeneracy = 2 * rotational_number + 1
     hamiltonian_k = vibrational_energy_k(vibrational_number, molecule)
-    hamiltonian_k += rotational_energy_k(vibrational_number,
-                                   rotational_number, molecule)
+    hamiltonian_k += rotational_energy_k(rotational_number, molecule)
     partition_function = degeneracy * np.exp(
                                     -wavenumber_to_joules(hamiltonian_k) / 
                                     (temperature_K * s_consts.k))
@@ -330,8 +348,6 @@ def potential_dunham_coef_012(molecule='N2'):
            (spectroscopy_const['omega_xe'] / spectroscopy_const['B_e'])) 
     return (a_0, a_1, a_2)
 
-
-
 #TODO: CITE ME
 def potential_dunham_coeff_m(a_1, a_2, m):
     tmp = (12 / a_1)**(m - 2)
@@ -343,34 +359,42 @@ def potential_dunham_coeff_m(a_1, a_2, m):
 
     return tmp
 
+def born_oppenheimer_approximation(vibrational_number, rotational_number,
+                                   molecule):
+    spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
+    # Denegenracy
+    vib_levels = vibrational_number + 1/2
+    rot_degeneracy = (2 * rotational_number + 1)
+    rot_levels = rotational_number * (rotational_number + 1)
 
-def tropina_polarizability():
-    electric_charge = s_consts.e #[C]
-    electron_mass = s_consts.m_e #[kg]
+    # Harmonic vibration and rotation terms
+    harmonic = spectroscopy_constants['omega_e'] * vib_levels
+    harmonic += spectroscopy_constants['B_e'] * rot_levels
 
+    # Anharmonic vibration and rotation terms 
+    anharmonic = spectroscopy_constants['omega_xe'] * vib_levels**2
+    anharmonic += spectroscopy_constants['D_e'] * rot_levels**2
+
+    # Interacton between vibration and rotation modes
+    interaction = spectroscopy_constants['alpha_e'] * vib_levels * rot_levels
+
+    return harmonic - anharmonic - interaction #[cm^1]
 
 def vibrational_energy_k(vibrational_number, molecule):
     spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
     # Calculates the vibrational energy in units of wave number
-    tmp_vib = vibrational_number + 1/2
-    vib_energy_k = tmp_vib**2
-    vib_energy_k *= -spectroscopy_constants['omega_xe']
-    vib_energy_k += (spectroscopy_constants['omega_e'] * tmp_vib) #[cm^-1]
+    vib_levels = vibrational_number + 1/2
 
-    return vib_energy_k 
+    return spectroscopy_constants['omega_e'] * vib_levels #[cm^-1]
 
-def rotational_energy_k(vibrational_number, rotational_number, molecule):
+def rotational_energy_k(rotational_number, molecule):
     spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
-    gas_amu_weight  = aero.air_atomic_mass()  # [g/mol] 
     # Calculates the rotational energy in units of wave number
-    rot_energy_k = (vibrational_number + 1/2)
-    rot_energy_k *= -spectroscopy_constants['alpha_e']
-    rot_energy_k += spectroscopy_constants['B_e']
-    rot_energy_k *= rotational_number
-    rot_energy_k *= (rotational_number + 1) #[cm^-1]
+    rot_levels = rotational_number * (rotational_number + 1)
 
-    return rot_energy_k
+    return spectroscopy_constants['B_e'] * rot_levels #[cm^-1]
 
+# TODO
 def tranlational_energy(principal_number_x, principal_number_y,
                         principal_number_z):
     A = 5
@@ -428,6 +452,11 @@ if __name__ == "__main__":
                                    vibrational_number=vibrational_number,
                                    rotational_number=rotational_number, 
                                    molecule=molecule)
+
+    z_rot = rotational_partition_function(rotational_number, temperature_K,
+                                          molecule)
+    z_vib = vibrational_partition_function(vibrational_number, temperature_K,
+                                            molecule)
     IPython.embed(colors ='Linux')
 
 
