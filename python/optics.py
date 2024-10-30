@@ -26,6 +26,7 @@ python_scripts = os.path.join(scripts_path, 'Python')
 sys.path.append(python_scripts) 
 import helper_functions as helper 
 import aerodynamic_functions as aero
+import quantum
 
 def gas_density(density_dict): # density_dict [kg/m^3]
     gas_amu_weight  = aero.air_atomic_mass()  # [g/mol]  
@@ -65,16 +66,6 @@ def index_of_refraction(gas_density_dict):
 
     return n_return 
 
-def reflectivity(n_const, n_incident=1.0):
-# Normal Freznel equation 
-    reflectivity  = { }
-    reflectivity['dilute'] = ( (n_incident - n_const['dilute']) / 
-                               (n_incident + n_const['dilute']) )**2 
-    reflectivity['dense']  = ( (n_incident - n_const['dense']) / 
-                               (n_incident + n_const['dense']) )**2 
-    return reflectivity 
-    
-
 def dielectric_material_const(n_const): 
     # n ~ sqrt(e_r)  
     dielectric_const_0   = s_consts.epsilon_0 # [F/m] 
@@ -90,16 +81,15 @@ def optical_path_length(n_solution, distance):
     return OPL 
 
 # Calculate polarizability (uses equation 4 from the paper)
-def buldakov_polarizability(vibrational_number=2, rotational_number=3,
-                            molecule='N2'):
+def buldakov_expansion(vibrational_number, rotational_number, molecule):
     # Load constants
     spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
     derivative_const = constants_tables.polarizability_derivatives(molecule)
     be_we = spectroscopy_const['B_e'] / spectroscopy_const['omega_e']
 
     # Dunham potential energy constants
-    (a_0, a_1, a_2) = potential_dunham_coef_012(molecule)
-    a_3 = potential_dunham_coeff_m(a_1, a_2, 3)
+    (a_0, a_1, a_2) = quantum.potential_dunham_coef_012(molecule)
+    a_3 = quantum.potential_dunham_coeff_m(a_1, a_2, 3)
 
     rotational_degeneracy = rotational_number * (rotational_number + 1)
     vibrational_degeneracy = 2 * vibrational_number + 1
@@ -202,15 +192,6 @@ def kerl_polarizability_temperature(*args, **kargs):
 
     return tmp
 
-
-        
-
-
-
-
-
-
-
 # http://walter.bislins.ch/bloge/index.asp?page=Deriving+Equations+for+Atmospheric+Refraction
 def atmospheric_index_of_refraction(altitude): 
     atmospheric_prop = Atmosphere(altitude)
@@ -244,7 +225,6 @@ def atmospheric_gladstoneDaleConstant(altitude=0.0, gas_composition_dict=None):
 
     return tmp 
 
-
 def Gladstone_Dale(gas_density_dict=None): # [kg/m3
     gas_amu_weight   = aero.air_atomic_mass()       # [g/mol]
     avogadro_number  = s_consts.N_A                 # [particles/mol]
@@ -277,146 +257,6 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3
         return gladstone_dale_dict #[m3/kg]
 
 
-# Irikura: 10.1063/1.2436891
-def zero_point_energy(spectroscopy_const_in):
-    scope_var = (spectroscopy_const_in['alpha_e'] *
-                 spectroscopy_const_in['omega_e'] /
-                 spectroscopy_const_in['B_e'])
-    tmp = spectroscopy_const_in['omega_e'] / 2
-    tmp -= spectroscopy_const_in['omega_xe'] / 2
-    tmp += spectroscopy_const_in['omega_ye'] / 8
-    tmp += spectroscopy_const_in['B_e'] / 4
-    tmp += scope_var / 12 
-    tmp += scope_var**2 / (144 * spectroscopy_const_in['B_e'])
-
-    return tmp #[1/cm] 
-
-def vibrational_partition_function(vibrational_number, temperature_K, 
-                                   molecule):
-    thermal_beta = 1 / (s_consts.h * temperature_K)
-    z_vib = 0.0
-    for v in range(vibrational_number + 1):
-        z_vib += np.exp(-thermal_beta * 
-                wavenumber_to_joules(vibrational_energy_k(v, molecule)))
-    return z_vib
-
-def rotational_partition_function(rotational_number, temperature_K, molecule):
-    thermal_beta = 1 / (s_consts.h * temperature_K)
-    z_rot = 0.0
-    for j in range(rotational_number + 1):
-        z_rot += np.exp(-thermal_beta * 
-                  wavenumber_to_joules(rotational_energy_k(j, molecule)))
-    return z_rot
-        
-
-
-def partition_function(temperature_K, vibrational_number,
-                                   rotational_number, molecule):
-    degeneracy = 2 * rotational_number + 1
-    hamiltonian_k = vibrational_energy_k(vibrational_number, molecule)
-    hamiltonian_k += rotational_energy_k(rotational_number, molecule)
-    partition_function = degeneracy * np.exp(
-                                    -wavenumber_to_joules(hamiltonian_k) / 
-                                    (temperature_K * s_consts.k))
-    return partition_function #[ ]
-
-
-# Tropina 10.2514/6.2018-3904
-def probability_of_state(temperature_K, vibrational_number,
-                         rotational_number, molecule):
-
-    numerator = partition_function(temperature_K, vibrational_number,
-                                   rotational_number, molecule)
-
-    denominator = 0.0
-    for v in range(vibrational_number + 1):
-        for j in range(rotational_number + 1):
-            denominator += partition_function(temperature_K, v, j,
-                                                        molecule)
-
-    return numerator / denominator #[ ]
-
-
-#TODO: CITE ME
-def potential_dunham_coef_012(molecule='N2'):
-    spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
-    a_0 = (spectroscopy_const['omega_e']**2 /
-           (4 * spectroscopy_const['B_e']))
-    a_1 = -(spectroscopy_const['alpha_e'] * spectroscopy_const['omega_e'] /
-               (6 * spectroscopy_const['B_e']**2) + 1)
-    a_2 = ((5/4) * a_1**2 - (2/3) *
-           (spectroscopy_const['omega_xe'] / spectroscopy_const['B_e'])) 
-    return (a_0, a_1, a_2)
-
-#TODO: CITE ME
-def potential_dunham_coeff_m(a_1, a_2, m):
-    tmp = (12 / a_1)**(m - 2)
-    tmp *= (2**(m + 1) - 1)
-    tmp *= (a_2 / 7)**(m - 1)
-
-    for i in range(m - 2):
-        tmp *= (1 / (m + 2 - i))
-
-    return tmp
-
-def born_oppenheimer_approximation(vibrational_number, rotational_number,
-                                   molecule):
-    spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
-    # Denegenracy
-    vib_levels = vibrational_number + 1/2
-    rot_degeneracy = (2 * rotational_number + 1)
-    rot_levels = rotational_number * (rotational_number + 1)
-
-    # Harmonic vibration and rotation terms
-    harmonic = spectroscopy_constants['omega_e'] * vib_levels
-    harmonic += spectroscopy_constants['B_e'] * rot_levels
-
-    # Anharmonic vibration and rotation terms 
-    anharmonic = spectroscopy_constants['omega_xe'] * vib_levels**2
-    anharmonic += spectroscopy_constants['D_e'] * rot_levels**2
-
-    # Interacton between vibration and rotation modes
-    interaction = spectroscopy_constants['alpha_e'] * vib_levels * rot_levels
-
-    return harmonic - anharmonic - interaction #[cm^1]
-
-def vibrational_energy_k(vibrational_number, molecule):
-    spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
-    # Calculates the vibrational energy in units of wave number
-    vib_levels = vibrational_number + 1/2
-
-    return spectroscopy_constants['omega_e'] * vib_levels #[cm^-1]
-
-def rotational_energy_k(rotational_number, molecule):
-    spectroscopy_constants = constants_tables.spectroscopy_constants(molecule)
-    # Calculates the rotational energy in units of wave number
-    rot_levels = rotational_number * (rotational_number + 1)
-
-    return spectroscopy_constants['B_e'] * rot_levels #[cm^-1]
-
-# TODO
-def tranlational_energy(principal_number_x, principal_number_y,
-                        principal_number_z):
-    A = 5
-
-
-# Kayser units
-def wavenumber_to_electronvolt(wavenumber_cm):
-    return wavenumber_to_joules(wavenumber_cm) / s_consts.eV #[eV]
-
-def wavenumber_to_joules(wavenumber_cm):
-    return wavenumber_cm * s_consts.c * 10**2 * s_consts.h #[J]
-
-def wavenumber_to_meter(wavelength_cm):
-    return wavelength_cm * 100
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     gd = Gladstone_Dale()
     gd.update({n: np.round(gd[n] * 1E4, 3) for n in gd.keys()})
@@ -431,32 +271,20 @@ if __name__ == "__main__":
     rotational_number = 3
     molecule = 'N2'
 
-    (a_0, a_1, a_2) = potential_dunham_coef_012(molecule='O2')
-    a_3 = potential_dunham_coeff_m(a_1, a_2, 3)
+    (a_0, a_1, a_2) = quantum.potential_dunham_coef_012(molecule='O2')
+    a_3 = quantum.potential_dunham_coeff_m(a_1, a_2, 3)
     #print(f'a_0 = {a_0:.4}\na_1 = {a_1:.4}\na_2 = {a_2:.4}\na_3 = {a_3:.4}')
 
-    prob_states = probability_of_state(temperature_K=temperature_K,
-                                        vibrational_number=vibrational_number,
-                                        rotational_number=rotational_number,
-                                        molecule=molecule)
 
     kerl_pola = kerl_polarizability_temperature(temperature_K=temperature_K,
                                                 molecule=molecule,
                                                 wavelength_nm=633)
 
-    buldakov_pola = buldakov_polarizability(vibrational_number=vibrational_number,
+    buldakov_pola = buldakov_expansion(vibrational_number=vibrational_number,
                                             rotational_number=rotational_number,
                                             molecule=molecule)
 
-    part_fuct = partition_function(temperature_K=temperature_K, 
-                                   vibrational_number=vibrational_number,
-                                   rotational_number=rotational_number, 
-                                   molecule=molecule)
 
-    z_rot = rotational_partition_function(rotational_number, temperature_K,
-                                          molecule)
-    z_vib = vibrational_partition_function(vibrational_number, temperature_K,
-                                            molecule)
     IPython.embed(colors ='Linux')
 
 

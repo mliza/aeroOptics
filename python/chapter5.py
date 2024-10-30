@@ -24,6 +24,7 @@ scripts_path   = os.environ.get('SCRIPTS')
 python_scripts = os.path.join(scripts_path, 'Python')
 sys.path.append(python_scripts) 
 import optics
+import quantum
 import helper_functions as helper 
 import aerodynamic_functions as aero
 

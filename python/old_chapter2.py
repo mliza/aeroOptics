@@ -25,6 +25,7 @@ scripts_path   = os.environ.get('SCRIPTS')
 python_scripts = os.path.join(scripts_path, 'Python')
 sys.path.append(python_scripts) 
 import optics
+import quantum
 import helper_functions as helper 
 import aerodynamic_functions as aero
 
@@ -50,7 +51,6 @@ def plot_polarizability_T(**kargs):
     f'polKerl_{wavelength_nm}nm.png'), format = 'png',
     bbox_inches='tight', dpi=fig_config['dpi_size']) 
     plt.close()
-
 
 
 def plot_probability_of_state_vibrational_T(**kargs):
@@ -94,7 +94,6 @@ def plot_polarizability_buldakov(**kargs):
     bbox_inches='tight', dpi=fig_config['dpi_size']) 
     plt.close()
 
-
 def plot_partition_function_vibrational_T(**kargs):
     fig_config = kargs['fig_config']
     part_funct_dict = kargs['part_func_dict']
@@ -122,16 +121,16 @@ def plot_polarizability_buldakov_surface(**kargs):
     rot_mesh = kargs['y_mesh']
     fig_name_out = kargs['fig_name_out']
     output_png_path = kargs['output_path']
-    buldakov_polarizability_2D = kargs['z_func']
+    buldakov_expansion_2D = kargs['z_func']
     legend_name = kargs['legend_name']
 
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"}, figsize=(7, 6))
     ax.view_init(elev=17, azim=-125, roll=0.0)
     surf = ax.plot_surface(vib_mesh, rot_mesh,
-                           buldakov_polarizability_2D, label=f'{legend_name}',
+                           buldakov_expansion_2D, label=f'{legend_name}',
                            cmap='plasma', linewidth=0, antialiased=False)
     """
-    ax.contourf(vib_mesh, rot_mesh, buldakov_polarizability_2D,
+    ax.contourf(vib_mesh, rot_mesh, buldakov_expansion_2D,
                 zdir='z', offset=1.5E30, cmap='plasma')
     """
     fig.colorbar(surf, shrink=0.5, aspect=10, pad=0.07)
@@ -150,6 +149,27 @@ def plot_polarizability_buldakov_surface(**kargs):
     #bbox_inches='tight', dpi=fig_config['dpi_size'], pad_ines=0) 
     plt.close()
 
+def calculate_kerl_polarizability(temperature_K, wavelength_nm,
+                                  output_path, fig_config):
+    pol_Kerl_N2 = optics.kerl_polarizability_temperature(
+                                        temperature_K=temperature_K,
+                                        molecule='N2',
+                                        wavelength_nm=wavelength_nm)
+
+    pol_Kerl_O2 = optics.kerl_polarizability_temperature(
+                                        temperature_K=temperature_K,
+                                        molecule='O2',
+                                        wavelength_nm=wavelength_nm)
+
+    pol_Kerl_Air = optics.kerl_polarizability_temperature(
+                                        temperature_K=temperature_K,
+                                        molecule='Air',
+                                        wavelength_nm=wavelength_nm)
+
+    plot_polarizability_T(temperature_K=temperature_K, kerl_N2=pol_Kerl_N2,
+                        kerl_O2=pol_Kerl_O2, kerl_Air=pol_Kerl_Air,
+                        fig_config=fig_config, wavelength_nm=wavelength_nm,
+                        output_path)
 
 if __name__ == "__main__":
 
@@ -161,11 +181,12 @@ if __name__ == "__main__":
     fig_config['dpi_size'] = 600
     fig_config['label_size'] = 15
     fig_config['legend_size'] = 10
+    output_path = 'tmp'
     matplotlib.rc('xtick', labelsize=10)
     matplotlib.rc('ytick', labelsize=10)
 
 
-# Probability of State at equilibrium
+    # Probability of State at equilibrium
     temperature_K = ['500', '1000', '2000']
     vibrational_num_max = 21
     rotational_num_max = 30
@@ -178,7 +199,7 @@ if __name__ == "__main__":
 
     prob_state_dict = { }
     partition_function_dict = { }
-    buldakov_polarizability = { }
+    buldakov_expansion = { }
 
     for t in temperature_K:
         prob_state_dict[t] = np.zeros(vibrational_num_max)
@@ -217,15 +238,15 @@ if __name__ == "__main__":
     rotational_number = ['1', '10', '20'] 
     legend_name = f'$J$ = {rotational_number}'
     for j in rotational_number:
-        buldakov_polarizability[j] = np.zeros(vibrational_num_max)
+        buldakov_expansion[j] = np.zeros(vibrational_num_max)
         for v in vibrational_number:
             # Buldakov Polarizability (function of rotational and vibrational numbers)
-            buldakov_polarizability[j][v] = optics.buldakov_polarizability(
+            buldakov_expansion[j][v] = optics.buldakov_expansion(
                                         vibrational_number=v, 
                                         rotational_number=int(j),
                                         molecule=f'{molecule}')
 
-    plot_polarizability_buldakov(pol_dict=buldakov_polarizability,
+    plot_polarizability_buldakov(pol_dict=buldakov_expansion,
                             vibrational_number=vibrational_number,
                             fig_name_out=fig_name_pol,
                             fig_config=fig_config,
@@ -237,19 +258,19 @@ if __name__ == "__main__":
     vibrational_numbers = np.arange(0, vibrational_num_max)
     rotational_numbers = np.arange(0, rotational_num_max)
     vib_mesh, rot_mesh = np.meshgrid(vibrational_numbers, rotational_numbers)
-    buldakov_polarizability_2D = np.zeros([rotational_num_max,
+    buldakov_expansion_2D = np.zeros([rotational_num_max,
                                            vibrational_num_max])
     fig_name_out = f'surfacePolBuldakov{molecule}.png'
     for v in vibrational_numbers:
         for j in rotational_numbers:
-            buldakov_polarizability_2D[j][v] = optics.buldakov_polarizability(
+            buldakov_expansion_2D[j][v] = optics.buldakov_expansion(
                                         vibrational_number=v, 
                                         rotational_number=j,
                                         molecule=f'{molecule}')
 
     plot_polarizability_buldakov_surface(x_mesh=vib_mesh,
                                          y_mesh=rot_mesh,
-                                         z_func=buldakov_polarizability_2D,
+                                         z_func=buldakov_expansion_2D,
                                          fig_name_out=fig_name_out,
                                          fig_config=fig_config,
                                          legend_name=f'{molecule}',
@@ -264,7 +285,7 @@ if __name__ == "__main__":
     prob_state = np.zeros([vibrational_num_max, np.shape(temperature_K)[0]])
     vib_mesh, temp_mesh = np.meshgrid(temperature_K, vibrational_number)
     for v in vibrational_numbers: 
-        buldakov_expectation_value[v] = optics.buldakov_polarizability(
+        buldakov_expectation_value[v] = optics.buldakov_expansion(
                                         vibrational_number=v, 
                                         rotational_number=rotational_num_max,
                                         molecule=f'{molecule}')
@@ -285,25 +306,10 @@ if __name__ == "__main__":
     plt.show()
 
 
-# Kerl Polarizability (function of temperature)
+# Kerl Polarizability (function of temperature) ##
     temperature_K = np.linspace(0, 2000, 100)
     wavelength_nm = 633
-    pol_Kerl_N2 = optics.kerl_polarizability_temperature(
-                                        temperature_K=temperature_K,
-                                        molecule='N2',
-                                        wavelength_nm=wavelength_nm)
+    calculate_kerl_polarizability(temperature_K, wavelength_nm, output_path,
+                                  fig_config)
+# Kerl Polarizability (function of temperature) ##
 
-    pol_Kerl_O2 = optics.kerl_polarizability_temperature(
-                                        temperature_K=temperature_K,
-                                        molecule='O2',
-                                        wavelength_nm=wavelength_nm)
-
-    pol_Kerl_Air = optics.kerl_polarizability_temperature(
-                                        temperature_K=temperature_K,
-                                        molecule='Air',
-                                        wavelength_nm=wavelength_nm)
-
-    plot_polarizability_T(temperature_K=temperature_K, kerl_N2=pol_Kerl_N2,
-                        kerl_O2=pol_Kerl_O2, kerl_Air=pol_Kerl_Air,
-                        fig_config=fig_config, wavelength_nm=wavelength_nm,
-                        output_path='tmp')
