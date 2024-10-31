@@ -45,22 +45,22 @@ below
     """
     dict_out = { }
     if molecule == 'H2':
-        dict_out['zeroth'] = 0.7849E30 #https://edisciplinas.usp.br/pluginfile.php/4557662/mod_resource/content/1/CRC%20Handbook%20of%20Chemistry%20and%20Physics%2095th%20Edition.pdf
-        dict_out['first'] = 0.90E30 #https://www.tandfonline.com/doi/abs/10.1080/00268978000103191
-        dict_out['second'] = 0.49E30 #https://www.tandfonline.com/doi/abs/10.1080/00268978000103191 
-        dict_out['third'] = -0.85E30 #https://www.tandfonline.com/doi/abs/10.1080/00268978000103191
+        dict_out['zeroth'] = 0.7849E-30 #https://edisciplinas.usp.br/pluginfile.php/4557662/mod_resource/content/1/CRC%20Handbook%20of%20Chemistry%20and%20Physics%2095th%20Edition.pdf
+        dict_out['first'] = 0.90E-30 #https://www.tandfonline.com/doi/abs/10.1080/00268978000103191
+        dict_out['second'] = 0.49E-30 #https://www.tandfonline.com/doi/abs/10.1080/00268978000103191 
+        dict_out['third'] = -0.85E-30 #https://www.tandfonline.com/doi/abs/10.1080/00268978000103191
 
     if molecule == 'N2':
-        dict_out['zeroth'] = 1.7801E30 #https://edisciplinas.usp.br/pluginfile.php/4557662/mod_resource/content/1/CRC%20Handbook%20of%20Chemistry%20and%20Physics%2095th%20Edition.pdf
-        dict_out['first'] = 1.86E30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
-        dict_out['second'] = 1.2E30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
-        dict_out['third'] = -4.6E30 #https://pubs.aip.org/aip/jcp/article-abstract/78/9/5287/777120/Theoretical-study-of-the-effects-of-vibrational?redirectedFrom=fulltext
+        dict_out['zeroth'] = 1.7801E-30 #https://edisciplinas.usp.br/pluginfile.php/4557662/mod_resource/content/1/CRC%20Handbook%20of%20Chemistry%20and%20Physics%2095th%20Edition.pdf
+        dict_out['first'] = 1.86E-30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
+        dict_out['second'] = 1.2E-30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
+        dict_out['third'] = -4.6E-30 #https://pubs.aip.org/aip/jcp/article-abstract/78/9/5287/777120/Theoretical-study-of-the-effects-of-vibrational?redirectedFrom=fulltext
 
     if molecule == 'O2':
-        dict_out['zeroth'] = 1.6180E30 #https://edisciplinas.usp.br/pluginfile.php/4557662/mod_resource/content/1/CRC%20Handbook%20of%20Chemistry%20and%20Physics%2095th%20Edition.pdf
-        dict_out['first'] = 1.76E30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
-        dict_out['second'] = 3.4E30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
-        dict_out['third'] = -23.7E30 #https://pubs.aip.org/aip/jcp/article-abstract/100/2/1297/482621/Frequency-dependent-polarizabilities-of-O2-and-van?redirectedFrom=fulltext
+        dict_out['zeroth'] = 1.6180E-30 #https://edisciplinas.usp.br/pluginfile.php/4557662/mod_resource/content/1/CRC%20Handbook%20of%20Chemistry%20and%20Physics%2095th%20Edition.pdf
+        dict_out['first'] = 1.76E-30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
+        dict_out['second'] = 3.4E-30 #M. A. Buldakov, B. V. Korolev, I. I. Matrosov, and T. N. Popova, Opt. Spektrosk. 63, 775 (1987) MISSING REFERENCE 
+        dict_out['third'] = -23.7E-30 #https://pubs.aip.org/aip/jcp/article-abstract/100/2/1297/482621/Frequency-dependent-polarizabilities-of-O2-and-van?redirectedFrom=fulltext
 
     return dict_out #[m^3]
 
@@ -69,23 +69,23 @@ def kerl_interpolation(molecule='N2'):
     # Check reference in paper
     dict_out = { }
     if molecule == 'H2':
-        dict_out['groundPolarizability'] = 0.80320E30 #[m^3]
+        dict_out['groundPolarizability'] = 0.80320E-30 #[m^3]
         dict_out['groundFrequency'] = 2.1399E16 # [1/s]
         dict_out['b'] = 5.87E-6 # [1/K]
         dict_out['c'] = 7.544E-9 # [1/K^2]
 
     if molecule == 'N2':
-        dict_out['groundPolarizability'] = 1.7406E30 #[m^3]
+        dict_out['groundPolarizability'] = 1.7406E-30 #[m^3]
         dict_out['groundFrequency'] = 2.6049E16 # [1/s]
         dict_out['b'] = 1.8E-6 # [1/K]
         dict_out['c'] = 0.0 
     if molecule == 'O2':
-        dict_out['groundPolarizability'] = 1.5658E30 #[m^3]
+        dict_out['groundPolarizability'] = 1.5658E-30 #[m^3]
         dict_out['groundFrequency'] = 2.1801E16 # [1/s]
         dict_out['b'] = -2.369E-6 # [1/K]
         dict_out['c'] = 8.687E-9# [1/K^2]
     if molecule == 'Air':
-        dict_out['groundPolarizability'] = 1.6970E30 #[m^3]
+        dict_out['groundPolarizability'] = 1.6970E-30 #[m^3]
         dict_out['groundFrequency'] = 2.47044E16 # [1/s]
         dict_out['b'] = 10.6E-6 # [1/K]
         dict_out['c'] = 7.909E-9# [1/K^2]
