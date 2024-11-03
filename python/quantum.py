@@ -112,30 +112,67 @@ def born_oppenheimer_approximation(vibrational_number, rotational_number,
 
     return harmonic - anharmonic - interaction #[cm^1]
 
-def boltzman_factor(vibrational_number, rotational_number, temperature_K,
-                    molecule): 
+def boltzman_factor(temperature_K, molecule, vibrational_number=None,
+                    rotational_number=None):
+    # Initialize energy terms, degeneracy and thermal beta
+    energy_vib_k = 0
+    energy_rot_k = 0
+    degeneracy_rotation = 1
     thermal_beta = 1 / (s_consts.k * temperature_K)
-    energy_vib_k = vibrational_energy_k(vibrational_number, molecule)
-    energy_rot_k = rotational_energy_k(rotational_number, molecule)
-    tot_energy = wavenumber_to_joules(energy_vib_k + energy_rot_k)
-    degeneracy = 2 * rotational_number + 1
-    return degeneracy * np.exp(-tot_energy * thermal_beta)
-    
 
-def distribution_function(vibrational_number, rotational_number,
-                         temperature_K, molecule):
-    # Denominator
-    z_rot = rotational_partition_function(rotational_number, temperature_K,
+    # Calculates Energy levels
+    if vibrational_number is not None:
+        energy_vib_k = vibrational_energy_k(vibrational_number, molecule)
+    if rotational_number is not None:
+        energy_rot_k = rotational_energy_k(rotational_number, molecule)
+        degeneracy_rotation = 2 * rotational_number + 1
+
+    tot_energy = wavenumber_to_joules(energy_vib_k + energy_rot_k)
+
+    return degeneracy_rotation * np.exp(-tot_energy * thermal_beta)
+    
+def distribution_function(temperature_K, molecule, vibrational_number=None,
+                    rotational_number=None):
+    # Check if they exist
+    z_rot = 1
+    z_vib = 1
+
+    # Calculate partition functions if vibrational or rotational numbers are provided
+    if vibrational_number is not None:
+        z_vib = vibrational_partition_function(vibrational_number, temperature_K,
                                           molecule)
-    z_vib = vibrational_partition_function(vibrational_number, temperature_K,
+    if rotational_number is not None:
+        z_rot = rotational_partition_function(rotational_number, temperature_K,
                                           molecule)
+
+    # Calculate total partition function as the product 
+    # of rotational and vibrational partition functions
     z_tot = z_rot * z_vib
     
-    tmp = np.zeros([vibrational_number+1, rotational_number+1])
-    for j in range(rotational_number + 1):
-        for v in range(vibrational_number + 1):
-            tmp[v][j] = boltzman_factor(v, j, temperature_K, molecule)
+    # Create the distribution array based on the inputs provided
+    if vibrational_number and rotational_number:
+        tmp = np.zeros([vibrational_number + 1, rotational_number + 1])
+        for j in range(rotational_number + 1):
+            for v in range(vibrational_number + 1):
+                tmp[v][j] = boltzman_factor(temperature_K=temperature_K,
+                                            molecule=molecule,
+                                            vibrational_number=v,
+                                            rotational_number=j)
+                #print(f'{v},{j} = {tmp[v][j]}')
 
+    elif vibrational_number:
+        tmp = np.zeros(vibrational_number + 1)
+        for v in range(vibrational_number + 1):
+            tmp[v] = boltzman_factor(temperature_K=temperature_K,
+                                        molecule=molecule,
+                                        vibrational_number=v)
+
+    elif rotational_number:
+        tmp = np.zeros(rotational_number + 1)
+        for j in range(rotational_number + 1):
+            tmp[j] = boltzman_factor(temperature_K=temperature_K,
+                                        molecule=molecule,
+                                        rotational_number=j)
     return tmp / z_tot
 
 
@@ -165,6 +202,16 @@ if __name__ == "__main__":
     vibrational_number = 3
     rotational_number = 5
 
+    V = distribution_function(temperature_K, molecule,
+                          vibrational_number=vibrational_number)
+    J = distribution_function(temperature_K, molecule,
+                          rotational_number=rotational_number)
+
+    VJ = distribution_function(temperature_K, molecule,
+                          vibrational_number=vibrational_number,
+                          rotational_number=rotational_number)
+    IPython.embed(colors = 'Linux')
+
     b_o = born_oppenheimer_approximation(vibrational_number=vibrational_number,
                                         rotational_number=rotational_number,
                                         molecule=molecule)
@@ -182,6 +229,7 @@ if __name__ == "__main__":
     z_rot = rotational_partition_function(rotational_number=rotational_number, 
                                    temperature_K=temperature_K,
                                    molecule=molecule)
-    A = distribution_function(vibrational_number, rotational_number, temperature_K, molecule)
-    IPython.embed(colors = 'Linux')
+
+
+
 
