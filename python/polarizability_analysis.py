@@ -78,8 +78,8 @@ def buldakov_analysis(temperature_K, vibrational_number_max,
             buldakov_expansion[v][j] = optics.buldakov_expansion(v, j, molecule)
 
     for ti, val in enumerate(temperature_K):
-        distribution_func[ti] = quantum.distribution_function(
-                vibrational_number_max, rotational_number_max, val, molecule)
+        distribution_func[ti] = quantum.distribution_function(val, molecule,
+                                vibrational_number_max, rotational_number_max) 
 
     # Sum for all states
     buldakov_polarizability = np.zeros(np.shape(temperature_K)[0])
