@@ -32,7 +32,6 @@ import aerodynamic_functions as aero
 def kerl_analysis(temperature_K, wavelength_nm, fig_config): 
     # Calculations #
     keys = ['N2', 'O2', 'Air']
-    keys = ['O2']
     dict_kerl = { }
     for k in keys:
         dict_kerl[k] = np.zeros(np.shape(temperature_K)[0])
@@ -60,7 +59,7 @@ def kerl_analysis(temperature_K, wavelength_nm, fig_config):
                 bbox_inches='tight', dpi=fig_config['dpi_size'])
     plt.close()
     # Plot #
-    return dict_kerl[k]  
+    return dict_kerl  
 
 def buldakov_analysis(temperature_K, vibrational_number_max,
                       rotational_number_max, molecule):
@@ -103,7 +102,7 @@ def buldakov_analysis(temperature_K, vibrational_number_max,
     plt.xticks(fontsize=fig_config['ticks_size'])
     plt.yticks(fontsize=fig_config['ticks_size'])
     plt.savefig(os.path.join(fig_config['out_path'],
-        f'buldakovPolarizability_{wavelength_nm}nm.png'), format = 'png',
+        f'buldakovPolarizability_{molecule}_{wavelength_nm}nm.png'), format = 'png',
                 bbox_inches='tight', dpi=fig_config['dpi_size'])
     plt.close()
 
@@ -111,6 +110,20 @@ def buldakov_analysis(temperature_K, vibrational_number_max,
     return buldakov_polarizability  
 
 
+def plot_buldakov_kerl(temperature_K, buldakov, kerl, molecule, fig_config):
+    plt.plot(temperature_K , buldakov, linewidth=fig_config['line_width'],
+             label=f'Buldakov, {molecule}')
+    plt.plot(temperature_K , kerl, linewidth=fig_config['line_width'],
+             label=f'Kerl, {molecule}')
+    plt.xlabel('Temperature $[K]$', fontsize=fig_config['label_size'])
+    plt.ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
+    plt.legend(fontsize=fig_config['legend_size'])
+    plt.xticks(fontsize=fig_config['ticks_size'])
+    plt.yticks(fontsize=fig_config['ticks_size'])
+    plt.savefig(os.path.join(fig_config['out_path'],
+        f'buldakovKerlPolarizability_{molecule}_{wavelength_nm}nm.png'), format = 'png',
+                bbox_inches='tight', dpi=fig_config['dpi_size'])
+    plt.close()
 
 
 
@@ -125,23 +138,18 @@ if __name__ == "__main__":
     fig_config['label_size'] = 15
     fig_config['legend_size'] = 10
     fig_config['ticks_size'] = 10
-    fig_config['out_path'] = '/Users/martin/Desktop'
+    fig_config['out_path'] = '/Users/martin/Desktop/pola'
 
 
-    temperature_K = np.linspace(200, 1500, 100)
-    rotational_num_max = 2
-    vibrational_num_max = 2 #3,4,5
+    temperature_K = np.linspace(200, 1500, 200)
+    rotational_num_max = 7
+    vibrational_num_max = 5 #3,4,5
     molecule = 'O2'
     wavelength_nm = 633
 
-
-    k = kerl_analysis(temperature_K, wavelength_nm, fig_config) 
-    b = buldakov_analysis(temperature_K, vibrational_num_max, 
+    kerl = kerl_analysis(temperature_K, wavelength_nm, fig_config) 
+    buldakov = buldakov_analysis(temperature_K, vibrational_num_max, 
                       rotational_num_max, molecule) 
-    IPython.embed(colors = 'Linux')
-    plt.plot(temperature_K , b, label='Buldakov, O2')
-    plt.plot(temperature_K , k, label='Kerl, O2')
-    plt.xlabel('Temperature $[K]$')
-    plt.ylabel('Polarizability $[m^3]$')
-    plt.legend()
-    plt.show() 
+    plot_buldakov_kerl(temperature_K, buldakov, kerl[molecule], molecule, fig_config)
+
+
