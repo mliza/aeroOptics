@@ -79,7 +79,9 @@ def buldakov_analysis(temperature_K, vibrational_number_max,
 
     for ti, val in enumerate(temperature_K):
         distribution_func[ti] = quantum.distribution_function(val, molecule,
-                                vibrational_number_max, rotational_number_max) 
+                                vibrational_number_max,
+                                rotational_number_max,
+                                born_opp_flag=True) 
 
     # Sum for all states
     buldakov_polarizability = np.zeros(np.shape(temperature_K)[0])
@@ -143,6 +145,3 @@ if __name__ == "__main__":
     plt.ylabel('Polarizability $[m^3]$')
     plt.legend()
     plt.show() 
-
-
-
