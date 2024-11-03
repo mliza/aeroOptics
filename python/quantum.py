@@ -133,7 +133,6 @@ def boltzman_factor(temperature_K, molecule, vibrational_number=None,
     
 def distribution_function(temperature_K, molecule, vibrational_number=None,
                     rotational_number=None):
-    # Check if they exist
     z_rot = 1
     z_vib = 1
 
@@ -158,8 +157,6 @@ def distribution_function(temperature_K, molecule, vibrational_number=None,
                                             molecule=molecule,
                                             vibrational_number=v,
                                             rotational_number=j)
-                #print(f'{v},{j} = {tmp[v][j]}')
-
     elif vibrational_number:
         tmp = np.zeros(vibrational_number + 1)
         for v in range(vibrational_number + 1):
@@ -210,7 +207,6 @@ if __name__ == "__main__":
     VJ = distribution_function(temperature_K, molecule,
                           vibrational_number=vibrational_number,
                           rotational_number=rotational_number)
-    IPython.embed(colors = 'Linux')
 
     b_o = born_oppenheimer_approximation(vibrational_number=vibrational_number,
                                         rotational_number=rotational_number,
