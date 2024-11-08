@@ -41,12 +41,12 @@ def gas_density(density_dict): # density_dict [kg/m^3]
     return gas_density #[particles/m^3] 
 
 def index_of_refraction(gas_density_dict):
-    pol_consts         = constants_tables.polarizability() # [cm^3] 
+    pol_consts         = constants_tables.polarizability() # [m^3] 
     dielectric_const_0 = s_consts.epsilon_0                # [F/m] 
     density            = gas_density(gas_density_dict)     # [particles/m3]    
     n_const            = { }                               # [ ] 
     # Convert cgs to SI
-    alpha_si = lambda x : x * (4 * np.pi * dielectric_const_0) * 1E-6 #[F m2]
+    alpha_si = lambda x : x * (4 * np.pi * dielectric_const_0) #[F m2]
 
     for i in gas_density_dict: 
         # Convert alpha_cgs to alpha_si 
@@ -200,7 +200,7 @@ def atmospheric_index_of_refraction(altitude):
 
     # Calculate refractive coefficient 
     refractivity = 79 * pressure / temperature
-    index_of_refraction = refractivity * 1E-6 + 1
+    index_of_refraction = refractivity + 1
 
     return index_of_refraction
 
@@ -230,10 +230,10 @@ def Gladstone_Dale(gas_density_dict=None): # [kg/m3
     avogadro_number  = s_consts.N_A                 # [particles/mol]
     dielectric_const = s_consts.epsilon_0           # [F/m]
     gd_consts        = constants_tables.karl_2003() # [m3/kg]
-    pol_consts       = constants_tables.polarizability() #[cm^3]
+    pol_consts       = constants_tables.polarizability() #[m^3]
 
     # Convert CGS to SI 
-    pol_consts.update({n: 4 * np.pi * dielectric_const * 1E-6 * pol_consts[n]
+    pol_consts.update({n: 4 * np.pi * dielectric_const * pol_consts[n]
                        for n in pol_consts.keys()}) # [Fm^2]
 
     # Calculate Gladstone dale

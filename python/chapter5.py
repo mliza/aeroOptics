@@ -389,7 +389,7 @@ def main(cfd_results_abs_path):
     fig_config['legend_size'] = 10 
     matplotlib.rc('xtick', labelsize=10)
     matplotlib.rc('ytick', labelsize=10)
-    species_flag = False 
+    species_flag = True 
 
     if not species_flag:
         # Chemistry Composition # 

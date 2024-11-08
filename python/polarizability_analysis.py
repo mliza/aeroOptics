@@ -28,6 +28,7 @@ import optics
 import quantum
 import helper_functions as helper 
 import aerodynamic_functions as aero
+import constants_tables as s_consts
 
 def kerl_analysis(temperature_K, wavelength_nm, fig_config): 
     # Calculations #
@@ -111,10 +112,13 @@ def buldakov_analysis(temperature_K, vibrational_number_max,
 
 
 def plot_buldakov_kerl(temperature_K, buldakov, kerl, molecule, fig_config):
+    pol_const = s_consts.polarizability()[molecule]
     plt.plot(temperature_K , buldakov, linewidth=fig_config['line_width'],
              label=f'Buldakov, {molecule}')
     plt.plot(temperature_K , kerl, linewidth=fig_config['line_width'],
              label=f'Kerl, {molecule}')
+    plt.axhline(y=pol_const, linewidth=fig_config['line_width'], color='g',
+                label='Const')
     plt.xlabel('Temperature $[K]$', fontsize=fig_config['label_size'])
     plt.ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
     plt.legend(fontsize=fig_config['legend_size'])

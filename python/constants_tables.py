@@ -23,16 +23,16 @@ def karl_2003(): #follows SU2 MutationPP format
 # Polarizability
 def polarizability(): #follows SU2 MutationPP format
     dict_out = { #'e-'  : 0.0, 
-                 'N+'   : 0.559E-24,
-                 'O+'   : 0.345E-24,
-                 'NO+'  : 1.021E-24,
-                 'N2+'  : 2.386E-24,
-                 'O2+'  : 0.238E-24,
-                 'N'    : 1.100E-24,
-                 'O'    : 0.802E-24,
-                 'NO'   : 1.700E-24,
-                 'N2'   : 1.7403E-24,
-                 'O2'   : 1.5689E-24 } # [cm^3]  
+                 'N+'   : 0.559E-30,
+                 'O+'   : 0.345E-30,
+                 'NO+'  : 1.021E-30,
+                 'N2+'  : 2.386E-30,
+                 'O2+'  : 0.238E-30,
+                 'N'    : 1.100E-30,
+                 'O'    : 0.802E-30,
+                 'NO'   : 1.700E-30,
+                 'N2'   : 1.7403E-30,
+                 'O2'   : 1.5689E-30 } # [m^3]  
     return dict_out 
 
     
