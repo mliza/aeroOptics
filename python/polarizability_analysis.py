@@ -112,22 +112,39 @@ def buldakov_analysis(temperature_K, vibrational_number_max,
 
 
 def plot_buldakov_kerl(temperature_K, buldakov, kerl, molecule, fig_config):
+    # Assuming pol_const, temperature_K, buldakov, kerl, fig_config, and molecule are defined
     pol_const = s_consts.polarizability()[molecule]
-    plt.plot(temperature_K , buldakov, linewidth=fig_config['line_width'],
-             label=f'Buldakov, {molecule}')
-    plt.plot(temperature_K , kerl, linewidth=fig_config['line_width'],
-             label=f'Kerl, {molecule}')
-    plt.axhline(y=pol_const, linewidth=fig_config['line_width'], color='g',
-                label='Const')
-    plt.xlabel('Temperature $[K]$', fontsize=fig_config['label_size'])
-    plt.ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'])
-    plt.legend(fontsize=fig_config['legend_size'])
-    plt.xticks(fontsize=fig_config['ticks_size'])
-    plt.yticks(fontsize=fig_config['ticks_size'])
+    # Create the main figure and first y-axis
+    fig, ax1 = plt.subplots()
+    # Plot Buldakov on the primary y-axis
+    ax1.plot(temperature_K, kerl, linewidth=fig_config['line_width'], color='b', label=f'Kerl, {molecule}')
+    ax1.axhline(y=pol_const, linestyle='--', linewidth=fig_config['line_width'], color='b', label='Const')
+    # Set labels and formatting for the primary y-axis
+    ax1.set_xlabel('Temperature $[K]$', fontsize=fig_config['label_size'])
+    ax1.set_ylabel('Polarizability $[m^3]$', fontsize=fig_config['label_size'], color='b')
+    ax1.tick_params(axis='y', labelcolor='b')  # Color ticks to match y-axis label
+    # Create a secondary y-axis for the Kerl plot
+    ax2 = ax1.twinx()
+    ax2.plot(temperature_K, buldakov, color='r', linewidth=fig_config['line_width'], label=f'Buldakov, {molecule}')
+    # Set labels and formatting for the secondary y-axis
+    ax2.set_ylabel('Buldakov Values $[m^3]$', fontsize=fig_config['label_size'], color='r')  # Customize label as needed
+    ax2.tick_params(axis='y', labelcolor='r')  # Color ticks to match y-axis label
+    # Add legends for both y-axes
+    ax1.legend(loc="upper left", fontsize=fig_config['legend_size'])
+    ax2.legend(loc="upper right", fontsize=fig_config['legend_size'])
+    # Set tick sizes
+    ax1.tick_params(axis='x', labelsize=fig_config['ticks_size'])
+    ax1.tick_params(axis='y', labelsize=fig_config['ticks_size'])
+    ax2.tick_params(axis='y', labelsize=fig_config['ticks_size'])
+
+    # Save the figure
     plt.savefig(os.path.join(fig_config['out_path'],
-        f'buldakovKerlPolarizability_{molecule}_{wavelength_nm}nm.png'), format = 'png',
-                bbox_inches='tight', dpi=fig_config['dpi_size'])
+                f'buldakovKerlPolarizability_{molecule}_{wavelength_nm}nm.png'),
+                format='png', bbox_inches='tight', dpi=fig_config['dpi_size'])
+
+# Close the plot to free up memory
     plt.close()
+
 
 
 
@@ -148,7 +165,7 @@ if __name__ == "__main__":
     temperature_K = np.linspace(200, 1500, 200)
     rotational_num_max = 7
     vibrational_num_max = 5 #3,4,5
-    molecule = 'O2'
+    molecule = 'N2'
     wavelength_nm = 633
 
     kerl = kerl_analysis(temperature_K, wavelength_nm, fig_config) 

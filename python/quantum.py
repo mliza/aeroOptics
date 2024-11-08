@@ -100,8 +100,7 @@ def potential_dunham_coeff_m(a_1, a_2, m):
     return tmp
 
 
-def boltzman_factor(temperature_K, molecule, vibrational_number=None,
-                    rotational_number=None, born_opp_flag=False):
+def boltzman_factor(temperature_K, molecule, vibrational_number=None, rotational_number=None, born_opp_flag=False):
     """Calculates the Boltzman factor at a given vibrational_number and/or
     rotational_number. If the born_opp_flag is provided, it will calculate the
     total energy using the Born-Oppenheimer approximation"""
