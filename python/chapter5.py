@@ -90,9 +90,11 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         plt.semilogx(tmp['temperature']['time'], tmp['temperature']['Tv'],
                     linewidth = fig_config['line_width'],
                     label = '$T_{vr}$')
-        plt.legend()
-        plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
-        plt.ylabel('Temperature $[K]$', fontsize=fig_config['label_size'])
+        plt.xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
+        plt.ylabel('Temperature $[K]$', fontsize=fig_config['axis_label_size'])
+        plt.legend(fontsize=fig_config['legend_size'])
+        plt.xticks(fontsize=fig_config['ticks_size'])
+        plt.yticks(fontsize=fig_config['ticks_size'])
 
         if cut_dict and i in cut_dict and 'temperature' in cut_dict[i]:
             plt.xlim(cut_dict[i]['temperature'])
@@ -127,15 +129,19 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
                              linewidth=fig_config['line_width'],
                              label=f'${j}+$')
 
-        axes1.legend()
-        axes1.set_ylabel('Mass Fraction $[\;]$', fontsize=fig_config['label_size'])
-        axes1.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
+        axes1.legend(fontsize=fig_config['legend_size'])
+        axes1.set_ylabel('Mass Fraction $[\;]$', fontsize=fig_config['axis_label_size'])
+        axes1.set_xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
+        axes1.tick_params(axis='both', labelsize=fig_config['ticks_size'])
         # Modified axis for ions
         if tmp['ion_sp']:
-            axes1.set_ylabel('Neutral Species $[\;]$', fontsize=fig_config['label_size'])
-            axes2.set_ylabel('Ion Species $\\times 10^{-3}$ $[\;]$', fontsize=fig_config['label_size'])
-            axes2.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
-            axes2.legend()
+            axes1.set_ylabel('Neutral Species $[\;]$',
+                             fontsize=fig_config['axis_label_size'])
+            axes2.set_ylabel('Ion Species $\\times 10^{-3}$ $[\;]$',
+                             fontsize=fig_config['axis_label_size'])
+            axes2.set_xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
+            axes2.legend(fontsize=fig_config['legend_size'])
+            axes2.tick_params(axis='x', labelsize=fig_config['ticks_size'])
 
         if cut_dict and i in cut_dict and 'massFraction' in cut_dict[i]:
             plt.xlim(cut_dict[i]['massFraction'])
@@ -165,19 +171,21 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
                              linestyle='dotted',
                              linewidth=fig_config['line_width'],
                              label=f'${j}+$')
-        axes1.legend()
-        axes1.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
+        axes1.legend(fontsize=fig_config['legend_size'])
+        axes1.set_xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
         axes1.set_ylabel('Neutral Species $\\times 10^{-4}\,[m^3/kg]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         axes1.set_ylabel('Species Gladstone-Dale $\\times 10^{-4}\,[m^3/kg]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
+        axes1.tick_params(axis='both', labelsize=fig_config['ticks_size'])
         if tmp['ion_sp']:
             axes2.set_ylabel('Ion Species $\\times 10^{-7}\,[m^3/kg]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
             axes1.set_ylabel('Neutral Species $\\times 10^{-4}\,[m^3/kg]$',
-                   fontsize=fig_config['label_size'])
-            axes2.set_xlabel('Time $[s]$', fontsize=fig_config['label_size'])
-            axes2.legend()
+                   fontsize=fig_config['axis_label_size'])
+            axes2.set_xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
+            axes2.legend(fontsize=fig_config['legend_size'])
+            axes2.tick_params(axis='x', labelsize=fig_config['ticks_size'])
 
         if cut_dict and i in cut_dict and 'speciesGladstone' in cut_dict[i]:
             plt.xlim(cut_dict[i]['speciesGladstone'])
@@ -197,10 +205,12 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
                      tmp['gladstone_species']['gladstone_dale'] * 1E4,
                      linewidth=fig_config['line_width'],
                      label='Nonequilibrium')
-        plt.legend()
-        plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
+        plt.xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
         plt.ylabel('Total Gladstone-Dale $\\times 10^{-4}\,[m^3/kg]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
+        plt.legend(fontsize=fig_config['legend_size'])
+        plt.xticks(fontsize=fig_config['ticks_size'])
+        plt.yticks(fontsize=fig_config['ticks_size'])
         if cut_dict and i in cut_dict and 'totalGladstone' in cut_dict[i]:
             plt.xlim(cut_dict[i]['totalGladstone'])
         plt.savefig(os.path.join(output_png_path, f'{i}_totalGladstoneDale.png'),
@@ -215,10 +225,12 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         plt.semilogx(tmp['temperature']['time'],
                      (tmp['refraction_index']['dense'] - 1) * 1E4, '--',
                      linewidth = fig_config['line_width'], label = 'dense')
-        plt.legend()
-        plt.xlabel('Time $[s]$', fontsize=fig_config['label_size'])
+        plt.legend(fontsize=fig_config['legend_size'])
+        plt.xticks(fontsize=fig_config['ticks_size'])
+        plt.yticks(fontsize=fig_config['ticks_size'])
+        plt.xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
         plt.ylabel('(Refraction Index $- 1$) $\\times 10^{-4}\,[\;]$', 
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         if cut_dict and i in cut_dict and 'refractiveIndex' in cut_dict[i]:
             plt.xlim(cut_dict[i]['refractiveIndex'])
         plt.savefig(os.path.join(output_png_path, f'{i}_refractionIndex.png'),
@@ -239,39 +251,39 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
         plt.scatter(tmp['gladstone_species']['gladstone_dale']/max_gl,
                     tmp['temperature']['Tt']/max_Tt)
         plt.xlabel('Normalized Gladstone-Dale $[\;]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         plt.ylabel('Normalized $T_t$ $[\;]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         # Calculate correlation coefficients
         correlations = helper_correlations( 
                                    tmp['gladstone_species']['gladstone_dale'],
                                    tmp['temperature']['Tt'])
-        plt.title(correlations, fontsize=fig_config['legend_size'])
+        plt.title(correlations, fontsize=fig_config['title_size'])
 
         plt.subplot(132)
         plt.scatter(tmp['gladstone_species']['gladstone_dale']/max_gl,
                     tmp['temperature']['Tv'] / max_Tv)
         plt.xlabel('Normalized Gladstone-Dale $[\;]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         plt.ylabel('Normalized $T_v$ $[\;]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         # Calculate correlation coefficients
         correlations = helper_correlations( 
                                    tmp['gladstone_species']['gladstone_dale'],
                                    tmp['temperature']['Tv'])
-        plt.title(correlations, fontsize=fig_config['legend_size'])
+        plt.title(correlations, fontsize=fig_config['title_size'])
 
         plt.subplot(133)
         plt.scatter(tmp['gladstone_species']['gladstone_dale'] / max_gl,
                     sqrtT / max_T)
         plt.xlabel('Normalized Gladstone-Dale $[\;]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         plt.ylabel('Normalized $\\sqrt{T_{vr}T_{tr}}$ $[\;]$',
-                   fontsize=fig_config['label_size'])
+                   fontsize=fig_config['axis_label_size'])
         # Calculate correlation coefficients
         correlations = helper_correlations( 
                         tmp['gladstone_species']['gladstone_dale'], sqrtT)
-        plt.title(correlations, fontsize=fig_config['legend_size'])
+        plt.title(correlations, fontsize=fig_config['title_size'])
 
         plt.savefig(os.path.join(output_png_path, f'{i}_scatterPlots.png'),
                     format = 'png',  bbox_inches='tight')
@@ -381,15 +393,15 @@ def optical_properties(data_in_path, files_in, output_png_path, fig_config, cut_
 
 def main(cfd_results_abs_path):
     fig_config = { }
-    fig_config['line_width'] = 3
+    fig_config['line_width'] = 4
     fig_config['fig_width'] = 6 
     fig_config['fig_height'] = 5 
     fig_config['dpi_size'] = 600 
-    fig_config['label_size'] = 15 
-    fig_config['legend_size'] = 10 
-    matplotlib.rc('xtick', labelsize=10)
-    matplotlib.rc('ytick', labelsize=10)
-    species_flag = True 
+    fig_config['legend_size'] = 12 
+    fig_config['ticks_size'] = 10
+    fig_config['axis_label_size'] = 14 
+    fig_config['title_size'] = 16
+    species_flag = False
 
     if not species_flag:
         # Chemistry Composition # 
