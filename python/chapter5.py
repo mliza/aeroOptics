@@ -392,7 +392,7 @@ def optical_properties(data_in_path, files_in, output_png_path, fig_config, cut_
 
 def main(cfd_results_abs_path):
     fig_config = { }
-    fig_config['line_width'] = 4
+    fig_config['line_width'] = 3
     fig_config['fig_width'] = 6 
     fig_config['fig_height'] = 5 
     fig_config['dpi_size'] = 600 
@@ -400,7 +400,7 @@ def main(cfd_results_abs_path):
     fig_config['legend_size'] = 14 
     fig_config['axis_label_size'] = 16 
     fig_config['title_size'] = 18
-    species_flag = True
+    species_flag = False
 
     if not species_flag:
         # Chemistry Composition # 

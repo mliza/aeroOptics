@@ -11,6 +11,7 @@
 import os 
 import sys 
 import IPython
+import molmass
 import constants_tables 
 import numpy as np
 import scipy.constants as s_consts 
@@ -31,18 +32,23 @@ def wavenumber_to_joules(wavenumber_cm):
     """Convert wavenumber [cm^-1] to energy in electron volts [eV]."""
     return wavenumber_cm * s_consts.c * 100 * s_consts.h #[J]
 
-def zero_point_energy(spectroscopy_const_in):
+def molarmass_to_kilogram(molarmass_gmol):
+    """Convert molar mass [g/mol] to [kg]."""
+    return molarmass_gmol * 1E-3 / s_consts.N_A
+
+def zero_point_energy(molecule):
     """Calculate zero-point energy based on spectroscopy constants. 
     (Ref: Irikura https://doi.org/10.1063/1.2436891)"""
-    scope_var = (spectroscopy_const_in['alpha_e'] *
-                 spectroscopy_const_in['omega_e'] /
-                 spectroscopy_const_in['B_e'])
-    zpe = spectroscopy_const_in['omega_e'] / 2
-    zpe -= spectroscopy_const_in['omega_xe'] / 2
-    zpe += spectroscopy_const_in['omega_ye'] / 8
-    zpe += spectroscopy_const_in['B_e'] / 4
+    spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
+    scope_var = (spectroscopy_const['alpha_e'] *
+                 spectroscopy_const['omega_e'] /
+                 spectroscopy_const['B_e'])
+    zpe = spectroscopy_const['omega_e'] / 2
+    zpe -= spectroscopy_const['omega_xe'] / 2
+    zpe += spectroscopy_const['omega_ye'] / 8
+    zpe += spectroscopy_const['B_e'] / 4
     zpe += scope_var / 12 
-    zpe += scope_var**2 / (144 * spectroscopy_const_in['B_e'])
+    zpe += scope_var**2 / (144 * spectroscopy_const['B_e'])
     return zpe #[1/cm] 
 
 def vibrational_partition_function(vibrational_number, temperature_K, molecule):
@@ -207,6 +213,15 @@ def rotational_energy_k(rotational_number, molecule):
     rot_levels = rotational_number * (rotational_number + 1)
     return spectroscopy_constants['B_e'] * rot_levels #[cm^-1]
 
+def reduced_mass_kg(molecule_1, molecule_2):
+    """Calculates the molar reduced mass and returns it in kg of two
+    elements"""
+    m_1 = molmass.Formula(molecule_1).mass
+    m_2 = molmass.Formula(molecule_2).mass
+    mu = m_1 * m_2 / (m_1 + m_2)
+
+    return molarmass_to_kilogram(mu)
+
 # TODO: Missing Translational Energy
 def tranlational_energy(principal_number_x, principal_number_y,
                         principal_number_z):
@@ -246,3 +261,23 @@ if __name__ == "__main__":
     z_bo = born_oppenheimer_partition_function(rotational_number,
                                                 vibrational_number,
                                                 temperature_K, molecule)
+
+
+
+    """
+    Molecule = ['NO+', 'N2+', 'O2+', 'NO', 'N2', 'O2'] 
+    for i in Molecule:
+        print( f'{i} = {zero_point_energy(i):0.3f}')
+    """
+    
+    dict_mu = { }
+    dict_mu['NO+'] = reduced_mass_kg('N+', 'O+')
+    dict_mu['N2+'] = reduced_mass_kg('N+', 'N+')
+    dict_mu['O2+'] = reduced_mass_kg('O+', 'O+')
+    dict_mu['NO'] = reduced_mass_kg('N', 'O')
+    dict_mu['N2'] = reduced_mass_kg('N', 'N')
+    dict_mu['O2'] = reduced_mass_kg('O', 'O')
+    for k, v in dict_mu.items():
+        print(f'{k} = {v}')
+
+
