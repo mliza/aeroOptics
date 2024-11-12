@@ -100,9 +100,10 @@ def potential_dunham_coeff_m(a_1, a_2, m):
     tmp = (12 / a_1)**(m - 2)
     tmp *= (2**(m + 1) - 1)
     tmp *= (a_2 / 7)**(m - 1)
-
     for i in range(m - 2):
         tmp *= (1 / (m + 2 - i))
+
+    #tmp2 = a_1**3 * 0.25 - 0.5 * a_1**2 + 1/6 * a_1
     return tmp
 
 
@@ -261,8 +262,6 @@ if __name__ == "__main__":
     z_bo = born_oppenheimer_partition_function(rotational_number,
                                                 vibrational_number,
                                                 temperature_K, molecule)
-
-
 
     """
     Molecule = ['NO+', 'N2+', 'O2+', 'NO', 'N2', 'O2'] 
