@@ -124,15 +124,15 @@ def buldakov_expansion(vibrational_number, rotational_number, molecule):
 
     tmp_31 = derivative_const['first'] * (tmp_31a + tmp_31b + tmp_31c)
 
-    tmp_32a = 5
-    tmp_32a += vibrational_degeneracy**2
-    tmp_32a *= a_2
-    tmp_32a *- -3/4
+    tmp_32a = 7
+    tmp_32a += (15 * vibrational_degeneracy**2)
+    tmp_32a *= a_1**2
+    tmp_32a *= 1/8
 
-    tmp_32b = 7
-    tmp_32b += (15 * vibrational_degeneracy**2)
-    tmp_32b *= a_1**2
-    tmp_32b *= 1/8
+    tmp_32b = 5
+    tmp_32b += vibrational_degeneracy**2
+    tmp_32b *= a_2
+    tmp_32b *- -3/4
 
     tmp_32 = derivative_const['second'] * (tmp_32a + tmp_32b)
 
@@ -271,9 +271,12 @@ if __name__ == "__main__":
     rotational_number = 3
     molecule = 'N2'
 
+    (a_0, a_1, a_2) = quantum.potential_dunham_coef_012(molecule='N2')
+    a_3 = quantum.potential_dunham_coeff_m(a_1, a_2, 3)
+    print(f'N2:  a_0 = {a_0:.4}, a_1 = {a_1:.4}, a_2 = {a_2:.4}, a_3 = {a_3:.4}')
     (a_0, a_1, a_2) = quantum.potential_dunham_coef_012(molecule='O2')
     a_3 = quantum.potential_dunham_coeff_m(a_1, a_2, 3)
-    #print(f'a_0 = {a_0:.4}\na_1 = {a_1:.4}\na_2 = {a_2:.4}\na_3 = {a_3:.4}')
+    print(f'O2:  a_0 = {a_0:.4}, a_1 = {a_1:.4}, a_2 = {a_2:.4}, a_3 = {a_3:.4}')
 
 
     kerl_pola = kerl_polarizability_temperature(temperature_K=temperature_K,
@@ -285,7 +288,6 @@ if __name__ == "__main__":
                                             molecule=molecule)
 
 
-    IPython.embed(colors ='Linux')
 
 
     # MAKING PLOTS #

@@ -90,6 +90,7 @@ def buldakov_analysis(temperature_K, vibrational_number_max,
                                              buldakov_expansion)
 
 
+    IPython.embed(colors = 'Linux')
     ### PLOT ### 
     plt.plot(temperature_K, buldakov_polarizability, 
                  linewidth=fig_config['line_width'], label=f'{molecule}')
@@ -163,7 +164,7 @@ if __name__ == "__main__":
 
 
     temperature_K = np.linspace(200, 1500, 200)
-    rotational_num_max = 7
+    rotational_num_max = 2
     vibrational_num_max = 5 #3,4,5
     molecule = 'N2'
     wavelength_nm = 633
