@@ -220,16 +220,16 @@ def plot_chemistry_composition(dict_data, output_png_path, fig_config,
 
         # Plot Refractive Index dense and dilute 
         plt.semilogx(tmp['temperature']['time'],
-                     (tmp['refraction_index']['dilute'] - 1) * 1E4,
+                     (tmp['refraction_index']['dilute'] - 1),
                      linewidth = fig_config['line_width'], label = 'dilute')
         plt.semilogx(tmp['temperature']['time'],
-                     (tmp['refraction_index']['dense'] - 1) * 1E4, '--',
+                     (tmp['refraction_index']['dense'] - 1), '--',
                      linewidth = fig_config['line_width'], label = 'dense')
         plt.legend(fontsize=fig_config['legend_size'])
         plt.xticks(fontsize=fig_config['ticks_size'])
         plt.yticks(fontsize=fig_config['ticks_size'])
         plt.xlabel('Time $[s]$', fontsize=fig_config['axis_label_size'])
-        plt.ylabel('(Refraction Index $- 1$) $\\times 10^{-4}\,[\;]$', 
+        plt.ylabel('(Refractive Index $- 1$) $[\;]$', 
                    fontsize=fig_config['axis_label_size'])
         if cut_dict and i in cut_dict and 'refractiveIndex' in cut_dict[i]:
             plt.xlim(cut_dict[i]['refractiveIndex'])
@@ -400,7 +400,7 @@ def main(cfd_results_abs_path):
     fig_config['legend_size'] = 14 
     fig_config['axis_label_size'] = 16 
     fig_config['title_size'] = 18
-    species_flag = False
+    species_flag = True
 
     if not species_flag:
         # Chemistry Composition # 

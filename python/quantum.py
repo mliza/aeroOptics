@@ -262,6 +262,7 @@ if __name__ == "__main__":
     z_bo = born_oppenheimer_partition_function(rotational_number,
                                                 vibrational_number,
                                                 temperature_K, molecule)
+    IPython.embed(colors='Linux')
 
     """
     Molecule = ['NO+', 'N2+', 'O2+', 'NO', 'N2', 'O2'] 

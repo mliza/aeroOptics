@@ -80,6 +80,13 @@ def optical_path_length(n_solution, distance):
     OPL['dense']  = n_solution['dense'] * distance
     return OPL 
 
+def tropina_aproximation(vibrational_number, rotational_number, molecule):
+    electron_mass = s_consts.m_e
+    electron_charge = s_consts.e
+    spectroscopy_const = constants_tables.spectroscopy_constants(molecule)
+    #resonance_distance = omega_gi - omega
+
+
 # Calculate polarizability (uses equation 4 from the paper)
 def buldakov_expansion(vibrational_number, rotational_number, molecule):
     # Load constants
@@ -193,16 +200,19 @@ def kerl_polarizability_temperature(*args, **kargs):
     return tmp
 
 # http://walter.bislins.ch/bloge/index.asp?page=Deriving+Equations+for+Atmospheric+Refraction
-def atmospheric_index_of_refraction(altitude): 
+def atmospheric_index_of_refraction(altitude, vaporPressure=0): 
     atmospheric_prop = Atmosphere(altitude)
     temperature      = atmospheric_prop.temperature #[K]
     pressure         = atmospheric_prop.pressure * 0.01 #[mbar]
+    K_1              = 79 #[K/mbar]
+    K_2              = 4800 #[K]
 
-    # Calculate refractive coefficient 
-    refractivity = 79 * pressure / temperature
-    index_of_refraction = refractivity + 1
+    refractivity =  K_2 * vaporPressure / temperature
+    refractivity += pressure
+    refractivity *= (K_1 / temperature)
+    refractivity *= 10**-6
 
-    return index_of_refraction
+    return refractivity + 1 
 
 def atmospheric_gladstoneDaleConstant(altitude=0.0, gas_composition_dict=None):
     atmospheric_prop = Atmosphere(altitude)
