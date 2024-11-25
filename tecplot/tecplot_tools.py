@@ -1,3 +1,4 @@
+
 import tecplot as tp
 from tecplot.exception import *
 from tecplot.constant import *
@@ -10,7 +11,7 @@ import IPython
 
 # data_parser.py file_in_abs_path file_out_abs_path x1_value x2_value y1_value y2_value n_points  
 
-def tp_cutter(struct_in):
+def data_cutter(struct_in):
     # Inputs 
     """
     file_in_abs_path  = sys.argv[1] 
