@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import optics
+from haot import optics
 from ambiance import Atmosphere
 
 import IPython

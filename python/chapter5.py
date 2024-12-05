@@ -18,15 +18,10 @@ import matplotlib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
+from haot import optics
+from haot import quantum_mechanics
+from haot import aerodynamics
 
-# My Packages 
-scripts_path   = os.environ.get('SCRIPTS')
-python_scripts = os.path.join(scripts_path, 'Python')
-sys.path.append(python_scripts) 
-import optics
-import quantum
-import helper_functions as helper 
-import aerodynamic_functions as aero
 
 def get_dicts(data_path : str, f_in : str) -> tuple[dict, object, dict]:
     """
@@ -353,7 +348,7 @@ def optical_properties(data_in_path, files_in, output_png_path, fig_config, cut_
     name_in  = [x.split('.')[0] for x in files_in]
     dict_data = { }
 
-    gd = optics.Gladstone_Dale()
+    gd = optics.gladstone_dale()
     for f_in in name_in:
         dict_data[f_in] = { }
         density_dict = { }
@@ -366,7 +361,7 @@ def optical_properties(data_in_path, files_in, output_png_path, fig_config, cut_
             del density_dict['e+']
 
         # Calculate Gladstone-Dale Constant and Index of Refraction
-        gd_const = optics.Gladstone_Dale(density_dict)
+        gd_const = optics.gladstone_dale(density_dict)
         refraction_index = optics.index_of_refraction(density_dict)
 
         # Gladstone-Dale constant frozen 
@@ -400,7 +395,7 @@ def main(cfd_results_abs_path):
     fig_config['legend_size'] = 14 
     fig_config['axis_label_size'] = 16 
     fig_config['title_size'] = 18
-    species_flag = True
+    species_flag = False
 
     if not species_flag:
         # Chemistry Composition # 
